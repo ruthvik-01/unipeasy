@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import {
   ArrowRight,
@@ -6,6 +8,7 @@ import {
   BrainCircuit,
   Lightbulb,
   Target,
+  FlaskConical,
 } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import {
@@ -19,6 +22,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { skillsData, type SkillTrack } from "@/lib/skills-data";
+import { useState, useEffect } from "react";
 
 const quickAccessItems = [
   {
@@ -56,12 +61,57 @@ const quickAccessItems = [
 ];
 
 const studyBlocks = [
-    { subject: "Quantum Physics", time: "Today, 4:00 PM", duration: "25 min" },
-    { subject: "Data Structures", time: "Today, 7:00 PM", duration: "50 min" },
-    { subject: "Shakespearean Literature", time: "Tomorrow, 10:00 AM", duration: "25 min" },
+  { subject: "Quantum Physics", time: "Today, 4:00 PM", duration: "25 min" },
+  { subject: "Data Structures", time: "Today, 7:00 PM", duration: "50 min" },
+  {
+    subject: "Shakespearean Literature",
+    time: "Tomorrow, 10:00 AM",
+    duration: "25 min",
+  },
 ];
 
+type ProgressData = {
+  title: string;
+  progress: number;
+};
+
 export default function DashboardPage() {
+  const [progressData, setProgressData] = useState<ProgressData[]>([]);
+
+  useEffect(() => {
+    const calculateProgress = () => {
+      const allProgress = Object.values(skillsData).map((track: SkillTrack) => {
+        const totalLevels = track.journey.reduce(
+          (sum, tier) => sum + tier.levels.length,
+          0
+        );
+        let completedLevels = 0;
+        if (typeof window !== "undefined") {
+          track.journey.forEach((tier) => {
+            tier.levels.forEach((level) => {
+              if (
+                localStorage.getItem(`skill-${track.slug}-level-${level.level}`) ===
+                "completed"
+              ) {
+                completedLevels++;
+              }
+            });
+          });
+        }
+        const progress =
+          totalLevels > 0 ? (completedLevels / totalLevels) * 100 : 0;
+        return {
+          title: track.title,
+          progress: Math.round(progress),
+        };
+      });
+      // Only show tracks where progress has been made
+      setProgressData(allProgress.filter(p => p.progress > 0));
+    };
+
+    calculateProgress();
+  }, []);
+
   return (
     <div className="space-y-8">
       <PageHeader
@@ -78,11 +128,15 @@ export default function DashboardPage() {
             <CardHeader>
               <div className="flex items-center gap-4">
                 <div className={`p-3 rounded-full ${item.bgColor}`}>
-                    <item.icon className={`h-6 w-6 ${item.color}`} />
+                  <item.icon className={`h-6 w-6 ${item.color}`} />
                 </div>
-                <CardTitle className="font-headline text-xl">{item.title}</CardTitle>
+                <CardTitle className="font-headline text-xl">
+                  {item.title}
+                </CardTitle>
               </div>
-              <CardDescription className="pt-2">{item.description}</CardDescription>
+              <CardDescription className="pt-2">
+                {item.description}
+              </CardDescription>
             </CardHeader>
             <CardFooter>
               <Link href={item.href} className="w-full">
@@ -104,49 +158,60 @@ export default function DashboardPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="space-y-2">
-                <div className="flex justify-between">
-                    <span className="font-medium">Python for Data Science</span>
-                    <span className="text-muted-foreground">75%</span>
+            {progressData.length > 0 ? (
+              progressData.map((item) => (
+                <div key={item.title} className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="font-medium">{item.title}</span>
+                    <span className="text-muted-foreground">
+                      {item.progress}%
+                    </span>
+                  </div>
+                  <Progress value={item.progress} />
                 </div>
-                <Progress value={75} />
-            </div>
-            <div className="space-y-2">
-                <div className="flex justify-between">
-                    <span className="font-medium">Public Speaking Mastery</span>
-                    <span className="text-muted-foreground">40%</span>
-                </div>
-                <Progress value={40} />
-            </div>
-            <div className="space-y-2">
-                <div className="flex justify-between">
-                    <span className="font-medium">Advanced Calculus</span>
-                    <span className="text-muted-foreground">90%</span>
-                </div>
-                <Progress value={90} />
-            </div>
+              ))
+            ) : (
+              <div className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-lg">
+                <FlaskConical className="w-12 h-12 text-muted-foreground" />
+                <p className="mt-4 font-semibold">No progress yet!</p>
+                <p className="text-muted-foreground mt-1">
+                  Head to the Skill Accelerator to start your first lesson.
+                </p>
+                <Button asChild className="mt-4">
+                  <Link href="/skills">Go to Skills</Link>
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle className="font-headline">Upcoming Study Blocks</CardTitle>
-            <CardDescription>Your Pomodoro sessions for today and tomorrow.</CardDescription>
+            <CardTitle className="font-headline">
+              Upcoming Study Blocks
+            </CardTitle>
+            <CardDescription>
+              Your Pomodoro sessions for today and tomorrow.
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <ul className="space-y-4">
-                {studyBlocks.map((block) => (
-                    <li key={block.subject} className="flex items-center gap-4">
-                        <div className="p-3 rounded-full bg-gray-100 dark:bg-gray-800">
-                            <BookOpen className="h-5 w-5 text-gray-500" />
-                        </div>
-                        <div>
-                            <p className="font-semibold">{block.subject}</p>
-                            <p className="text-sm text-muted-foreground">{block.time}</p>
-                        </div>
-                        <Badge variant="secondary" className="ml-auto">{block.duration}</Badge>
-                    </li>
-                ))}
+              {studyBlocks.map((block) => (
+                <li key={block.subject} className="flex items-center gap-4">
+                  <div className="p-3 rounded-full bg-gray-100 dark:bg-gray-800">
+                    <BookOpen className="h-5 w-5 text-gray-500" />
+                  </div>
+                  <div>
+                    <p className="font-semibold">{block.subject}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {block.time}
+                    </p>
+                  </div>
+                  <Badge variant="secondary" className="ml-auto">
+                    {block.duration}
+                  </Badge>
+                </li>
+              ))}
             </ul>
           </CardContent>
         </Card>
