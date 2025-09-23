@@ -31,7 +31,7 @@ const GenerateSimpleExplanationOutputSchema = z.object({
   analogy: z.string().describe('A real-life analogy to help understand the topic.'),
   mindMap: z
     .string()
-    .describe('A mind map of the topic in markdown format.'),
+    .describe('A mind map of the topic in a hierarchical tree structure using markdown format.'),
 });
 export type GenerateSimpleExplanationOutput = z.infer<
   typeof GenerateSimpleExplanationOutputSchema
@@ -53,7 +53,9 @@ const explanationPrompt = ai.definePrompt({
 
   The student wants to understand: {{{topic}}}
 
-  Provide a simple explanation, a real-life analogy, and a mind map to aid understanding. The explanation should be {{preferredExplanationLength}} in length. The mind map should be in markdown format.
+  Provide a simple explanation, a real-life analogy, and a mind map to aid understanding. The explanation should be {{preferredExplanationLength}} in length. 
+  
+  For the mind map, generate it in a hierarchical tree structure using markdown lists. Start with the main topic and branch out into key concepts, sub-topics, and important details. This structure should be easy to remember.
 
   Explanation:
   Analogy:
