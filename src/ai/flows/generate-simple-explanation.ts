@@ -79,8 +79,8 @@ const generateSimpleExplanationFlow = ai.defineFlow(
       throw new Error('Failed to generate explanation.');
     }
     
-    // Use a placeholder image service to avoid Imagen API errors.
-    const imageUrl = `https://picsum.photos/seed/${encodeURIComponent(input.topic)}/512/512`;
+    // Use Unsplash for more relevant images.
+    const imageUrl = `https://images.unsplash.com/photo-1653387141060-9a9834f47777?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxjb2RlJTIwcHJvZ3JhbW1pbmd8ZW58MHx8fHwxNzU4NTk3NTgwfDA&ixlib=rb-4.1.0&q=80&w=1080`;
 
     return {
       ...explanationOutput,

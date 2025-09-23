@@ -25,6 +25,7 @@ export function LearnForm() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<GenerateSimpleExplanationOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [topic, setTopic] = useState('');
 
   const form = useForm<LearnFormValues>({
     resolver: zodResolver(learnSchema),
@@ -37,6 +38,7 @@ export function LearnForm() {
     setLoading(true);
     setResult(null);
     setError(null);
+    setTopic(values.topic)
     try {
       const explanation = await generateSimpleExplanation({
         topic: values.topic,
@@ -118,11 +120,12 @@ export function LearnForm() {
             </CardHeader>
             <CardContent className="flex flex-col items-center gap-4">
               <Image 
-                src={result.visualImageDataUri}
+                src={`https://source.unsplash.com/512x512/?${encodeURIComponent(topic)}`}
                 alt={result.visualDescription}
                 width={512}
                 height={512}
                 className="rounded-lg border"
+                data-ai-hint={topic}
               />
               <CardDescription className="text-center italic">
                 {result.visualDescription}
