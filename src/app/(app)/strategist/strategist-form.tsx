@@ -21,39 +21,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { Textarea } from "@/components/ui/textarea";
 
 const strategistSchema = z.object({
-  syllabus: z.any().refine(file => file?.length == 1, "Syllabus file is required."),
+  syllabus: z.string().min(10, "Please enter the syllabus content."),
   timeframe: z.string().min(3, "Please enter a timeframe."),
   learningPace: z.enum(["slow", "medium", "fast"]),
-  pastExamPapers: z.any().optional(),
+  pastExamPapers: z.string().optional(),
 });
 
 type StrategistFormValues = z.infer<typeof strategistSchema>;
-
-const extractTextFromFile = async (file: File): Promise<string> => {
-  if (file.type === "application/pdf") {
-    const formData = new FormData();
-    formData.append("file", file);
-    const response = await fetch("/api/upload/text", {
-      method: "POST",
-      body: formData,
-    });
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ error: "Failed to extract text from PDF. The server returned an invalid response." }));
-      throw new Error(errorData.error || "Failed to extract text from PDF. An unknown error occurred.");
-    }
-    const data = await response.json();
-    return data.text;
-  } else {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (event) => resolve(event.target?.result as string);
-        reader.onerror = (error) => reject(error);
-        reader.readAsText(file);
-    });
-  }
-};
 
 export function StrategistForm() {
   const [loading, setLoading] = useState(false);
@@ -63,8 +40,10 @@ export function StrategistForm() {
   const form = useForm<StrategistFormValues>({
     resolver: zodResolver(strategistSchema),
     defaultValues: {
+      syllabus: "",
       timeframe: "4 weeks",
       learningPace: "medium",
+      pastExamPapers: "",
     },
   });
 
@@ -72,19 +51,8 @@ export function StrategistForm() {
     setLoading(true);
     setResult(null);
     try {
-      const syllabusFile = values.syllabus[0];
-      const syllabus = await extractTextFromFile(syllabusFile);
-
-      let pastExamPapers = "";
-      if (values.pastExamPapers && values.pastExamPapers.length > 0) {
-        const pastExamPapersFile = values.pastExamPapers[0];
-        pastExamPapers = await extractTextFromFile(pastExamPapersFile);
-      }
-      
       const plan = await createPersonalizedStudyPlan({
         ...values,
-        syllabus,
-        pastExamPapers,
       });
       setResult(plan);
     } catch (e: any) {
@@ -110,12 +78,12 @@ export function StrategistForm() {
                 name="syllabus"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Syllabus (PDF, TXT, MD)</FormLabel>
+                    <FormLabel>Syllabus Content</FormLabel>
                     <FormControl>
-                      <Input 
-                        type="file" 
-                        accept=".pdf,.txt,.md"
-                        onChange={(e) => field.onChange(e.target.files)}
+                      <Textarea 
+                        placeholder="Paste the full syllabus here..."
+                        className="h-36"
+                        {...field}
                       />
                     </FormControl>
                     <FormMessage />
@@ -167,12 +135,12 @@ export function StrategistForm() {
                 name="pastExamPapers"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Past Exam Papers (PDF, TXT, MD, optional)</FormLabel>
+                    <FormLabel>Past Exam Papers (Optional)</FormLabel>
                     <FormControl>
-                        <Input 
-                            type="file" 
-                            accept=".pdf,.txt,.md"
-                            onChange={(e) => field.onChange(e.target.files)}
+                        <Textarea 
+                            placeholder="Paste content from past exam papers here..."
+                            className="h-36"
+                            {...field}
                         />
                     </FormControl>
                     <FormMessage />
