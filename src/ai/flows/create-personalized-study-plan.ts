@@ -22,8 +22,15 @@ const CreatePersonalizedStudyPlanInputSchema = z.object({
 });
 export type CreatePersonalizedStudyPlanInput = z.infer<typeof CreatePersonalizedStudyPlanInputSchema>;
 
+const StudyPlanItemSchema = z.object({
+  day: z.string().describe('Day of the study plan (e.g., "Day 1", "Week 1 - Monday").'),
+  topic: z.string().describe('The topic to study.'),
+  pomodoroSessions: z.number().describe('Number of 25-minute Pomodoro sessions.'),
+  priority: z.string().describe('Priority of the topic (e.g., "High", "Medium", "Low").'),
+});
+
 const CreatePersonalizedStudyPlanOutputSchema = z.object({
-  studyPlan: z.string().describe('A prioritized Pomodoro-based timetable for studying.'),
+  studyPlan: z.array(StudyPlanItemSchema).describe('A prioritized Pomodoro-based timetable for studying, structured as a list of items.'),
 });
 export type CreatePersonalizedStudyPlanOutput = z.infer<typeof CreatePersonalizedStudyPlanOutputSchema>;
 
@@ -43,8 +50,8 @@ const prompt = ai.definePrompt({
   Past Exam Papers: {{{pastExamPapers}}}
 
   Based on this information, create a prioritized Pomodoro-based timetable to maximize the student's exam score in the limited time they have.
-  The study plan should be clear, concise, and easy to follow. It should include specific topics to study, the amount of time to spend on each topic, and the order in which to study them. Consider the student's learning pace when allocating time to each topic.
-  Return the study plan as a text.
+  The study plan should be clear, concise, and easy to follow. It should include specific topics to study, the amount of time to spend on each topic (in Pomodoro sessions of 25 minutes), and the order in which to study them. Consider the student's learning pace when allocating time to each topic.
+  Return the study plan as a structured array of study items.
   `,
 });
 

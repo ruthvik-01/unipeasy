@@ -22,6 +22,15 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 
 const strategistSchema = z.object({
   syllabus: z.string().min(10, "Please enter the syllabus content."),
@@ -164,10 +173,31 @@ export function StrategistForm() {
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 </div>
             )}
-            {result && (
-                <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap font-code">
-                    {result.studyPlan}
-                </div>
+            {result && result.studyPlan?.length > 0 && (
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Day</TableHead>
+                            <TableHead>Topic</TableHead>
+                            <TableHead>Priority</TableHead>
+                            <TableHead className="text-right">Pomodoros</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {result.studyPlan.map((item, index) => (
+                            <TableRow key={index}>
+                                <TableCell className="font-medium">{item.day}</TableCell>
+                                <TableCell>{item.topic}</TableCell>
+                                <TableCell>
+                                    <Badge variant={item.priority === 'High' ? 'destructive' : item.priority === 'Medium' ? 'secondary' : 'outline'}>
+                                        {item.priority}
+                                    </Badge>
+                                </TableCell>
+                                <TableCell className="text-right">{item.pomodoroSessions}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
             )}
             {!loading && !result && (
                 <div className="text-center text-muted-foreground h-full flex flex-col justify-center items-center">
