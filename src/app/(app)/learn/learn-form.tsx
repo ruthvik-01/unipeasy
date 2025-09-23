@@ -120,7 +120,7 @@ export function LearnForm() {
             </CardHeader>
             <CardContent className="flex flex-col items-center gap-4">
               <Image 
-                src={`https://source.unsplash.com/512x512/?${encodeURIComponent(topic)}`}
+                src={result.visualImageDataUri}
                 alt={result.visualDescription}
                 width={512}
                 height={512}
