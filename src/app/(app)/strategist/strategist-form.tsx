@@ -31,13 +31,27 @@ const strategistSchema = z.object({
 
 type StrategistFormValues = z.infer<typeof strategistSchema>;
 
-const readFileAsText = (file: File): Promise<string> => {
+const extractTextFromFile = async (file: File): Promise<string> => {
+  if (file.type === "application/pdf") {
+    const formData = new FormData();
+    formData.append("file", file);
+    const response = await fetch("/api/upload/text", {
+      method: "POST",
+      body: formData,
+    });
+    if (!response.ok) {
+      throw new Error("Failed to extract text from PDF");
+    }
+    const data = await response.json();
+    return data.text;
+  } else {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = (event) => resolve(event.target?.result as string);
         reader.onerror = (error) => reject(error);
         reader.readAsText(file);
     });
+  }
 };
 
 export function StrategistForm() {
@@ -60,12 +74,12 @@ export function StrategistForm() {
     setError(null);
     try {
       const syllabusFile = values.syllabus[0];
-      const syllabus = await readFileAsText(syllabusFile);
+      const syllabus = await extractTextFromFile(syllabusFile);
 
       let pastExamPapers = "";
       if (values.pastExamPapers && values.pastExamPapers.length > 0) {
         const pastExamPapersFile = values.pastExamPapers[0];
-        pastExamPapers = await readFileAsText(pastExamPapersFile);
+        pastExamPapers = await extractTextFromFile(pastExamPapersFile);
       }
       
       const plan = await createPersonalizedStudyPlan({
@@ -78,7 +92,7 @@ export function StrategistForm() {
         toast({
             variant: "destructive",
             title: "Error",
-            description: "Failed to process files. Please make sure they are plain text files (.txt, .md).",
+            description: "Failed to process files. Please make sure they are plain text or PDF files.",
         });
       setError("Failed to generate study plan. Please try again.");
       console.error(e);
@@ -98,11 +112,11 @@ export function StrategistForm() {
                 name="syllabus"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Syllabus (text file)</FormLabel>
+                    <FormLabel>Syllabus (PDF, TXT, MD)</FormLabel>
                     <FormControl>
                       <Input 
                         type="file" 
-                        accept=".txt,.md"
+                        accept=".pdf,.txt,.md"
                         onChange={(e) => field.onChange(e.target.files)}
                       />
                     </FormControl>
@@ -155,11 +169,11 @@ export function StrategistForm() {
                 name="pastExamPapers"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Past Exam Papers (text file, optional)</FormLabel>
+                    <FormLabel>Past Exam Papers (PDF, TXT, MD, optional)</FormLabel>
                     <FormControl>
                         <Input 
                             type="file" 
-                            accept=".txt,.md"
+                            accept=".pdf,.txt,.md"
                             onChange={(e) => field.onChange(e.target.files)}
                         />
                     </FormControl>
