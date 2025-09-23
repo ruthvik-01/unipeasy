@@ -14,6 +14,7 @@ interface MemoryPalaceContextType {
   memoryItems: MemoryItem[];
   addMemoryItem: (item: MemoryItem) => void;
   clearMemoryPalace: () => void;
+  isLoaded: boolean;
 }
 
 const MemoryPalaceContext = createContext<MemoryPalaceContextType | undefined>(undefined);
@@ -21,24 +22,31 @@ const MemoryPalaceContext = createContext<MemoryPalaceContextType | undefined>(u
 const LOCAL_STORAGE_KEY = 'memoryPalaceItems';
 
 export function MemoryPalaceProvider({ children }: { children: ReactNode }) {
-  const [memoryItems, setMemoryItems] = useState<MemoryItem[]>(() => {
-    if (typeof window === 'undefined') return [];
-    try {
-      const items = window.localStorage.getItem(LOCAL_STORAGE_KEY);
-      return items ? JSON.parse(items) : [];
-    } catch (error) {
-      console.error("Failed to parse memory palace items from localStorage", error);
-      return [];
-    }
-  });
+  const [memoryItems, setMemoryItems] = useState<MemoryItem[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     try {
-      window.localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(memoryItems));
+      const items = window.localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (items) {
+        setMemoryItems(JSON.parse(items));
+      }
     } catch (error) {
-        console.error("Failed to save memory palace items to localStorage", error);
+      console.error("Failed to parse memory palace items from localStorage", error);
+    } finally {
+        setIsLoaded(true);
     }
-  }, [memoryItems]);
+  }, []);
+
+  useEffect(() => {
+    if (isLoaded) {
+        try {
+            window.localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(memoryItems));
+        } catch (error) {
+            console.error("Failed to save memory palace items to localStorage", error);
+        }
+    }
+  }, [memoryItems, isLoaded]);
 
   const addMemoryItem = (item: MemoryItem) => {
     setMemoryItems((prevItems) => [item, ...prevItems]);
@@ -49,7 +57,7 @@ export function MemoryPalaceProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <MemoryPalaceContext.Provider value={{ memoryItems, addMemoryItem, clearMemoryPalace }}>
+    <MemoryPalaceContext.Provider value={{ memoryItems, addMemoryItem, clearMemoryPalace, isLoaded }}>
       {children}
     </MemoryPalaceContext.Provider>
   );

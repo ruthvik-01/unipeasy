@@ -11,10 +11,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useMemoryPalace } from "@/context/memory-palace-context";
 import { Button } from "@/components/ui/button";
-import { BrainCircuit, Trash2, Book, Compass, Waypoints } from "lucide-react";
+import { BrainCircuit, Trash2, Book, Compass, Waypoints, Loader2 } from "lucide-react";
 
 export default function MemoryPalacePage() {
-  const { memoryItems, clearMemoryPalace } = useMemoryPalace();
+  const { memoryItems, clearMemoryPalace, isLoaded } = useMemoryPalace();
 
   const getIcon = (type: string) => {
     switch(type) {
@@ -23,6 +23,14 @@ export default function MemoryPalacePage() {
       case 'Mind Map': return <Waypoints className="w-5 h-5" />;
       default: return <BrainCircuit className="w-5 h-5" />;
     }
+  }
+
+  if (!isLoaded) {
+    return (
+        <div className="flex items-center justify-center h-96">
+            <Loader2 className="w-16 h-16 animate-spin text-primary" />
+        </div>
+    )
   }
 
   return (
