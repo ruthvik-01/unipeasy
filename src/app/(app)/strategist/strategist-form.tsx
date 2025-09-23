@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Loader2, FileUp } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -58,13 +58,12 @@ async function extractTextFromFile(file: File): Promise<string> {
         console.error("Error extracting text from file:", error);
         throw new Error(error.message || 'An unexpected error occurred during file processing.');
     }
-  }
+}
 
 const strategistSchema = z.object({
   syllabus: z.string().min(10, "Please enter the syllabus content."),
   timeframe: z.string().min(3, "Please enter a timeframe."),
   learningPace: z.enum(["slow", "medium", "fast"]),
-  pastExamPapers: z.string().optional(),
   examPapersFile: z.instanceof(File).optional(),
 });
 
@@ -81,7 +80,6 @@ export function StrategistForm() {
       syllabus: "",
       timeframe: "4 weeks",
       learningPace: "medium",
-      pastExamPapers: "",
     },
   });
 
@@ -90,10 +88,10 @@ export function StrategistForm() {
   async function onSubmit(values: StrategistFormValues) {
     setLoading(true);
     setResult(null);
-    let pastExamPapersContent = values.pastExamPapers || "";
+    let pastExamPapersContent = "";
 
     try {
-      if (values.examPapersFile) {
+      if (values.examPapersFile && values.examPapersFile.size > 0) {
         try {
             pastExamPapersContent = await extractTextFromFile(values.examPapersFile);
             toast({
@@ -194,7 +192,7 @@ export function StrategistForm() {
                 />
               </div>
               <FormItem>
-                <FormLabel>Past Exam Papers (Optional)</FormLabel>
+                <FormLabel>Past Exam Papers (Optional PDF)</FormLabel>
                 <FormControl>
                     <Input type="file" accept=".pdf" {...examPapersFileRef} />
                 </FormControl>
