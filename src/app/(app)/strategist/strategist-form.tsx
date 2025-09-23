@@ -78,7 +78,7 @@ export function StrategistForm() {
         toast({
             variant: "destructive",
             title: "Error",
-            description: "Failed to process files. Please make sure they are text files.",
+            description: "Failed to process files. Please make sure they are plain text files (.txt, .md).",
         });
       setError("Failed to generate study plan. Please try again.");
       console.error(e);
@@ -98,11 +98,11 @@ export function StrategistForm() {
                 name="syllabus"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Syllabus</FormLabel>
+                    <FormLabel>Syllabus (text file)</FormLabel>
                     <FormControl>
                       <Input 
                         type="file" 
-                        accept=".txt,.md,.pdf,.doc,.docx"
+                        accept=".txt,.md"
                         onChange={(e) => field.onChange(e.target.files)}
                       />
                     </FormControl>
@@ -155,11 +155,11 @@ export function StrategistForm() {
                 name="pastExamPapers"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Past Exam Papers (Optional)</FormLabel>
+                    <FormLabel>Past Exam Papers (text file, optional)</FormLabel>
                     <FormControl>
                         <Input 
                             type="file" 
-                            accept=".txt,.md,.pdf,.doc,.docx"
+                            accept=".txt,.md"
                             onChange={(e) => field.onChange(e.target.files)}
                         />
                     </FormControl>
