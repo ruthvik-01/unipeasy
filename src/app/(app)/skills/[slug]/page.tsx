@@ -1,6 +1,9 @@
-import { notFound } from 'next/navigation';
+"use client";
+
+import { notFound, useParams } from 'next/navigation';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { skillsData, type Tier, type Level } from '@/lib/skills-data';
+import { skillsData, type Level } from '@/lib/skills-data';
 import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,15 +13,31 @@ import { CheckCircle, Lock, PlayCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function SkillTrackPage({ params }: { params: { slug: string } }) {
-  const track = skillsData[params.slug];
+  const trackData = skillsData[params.slug];
+  
+  const [journey, setJourney] = useState(trackData?.journey || []);
 
-  if (!track) {
-    notFound();
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const updatedJourney = trackData.journey.map(tier => ({
+        ...tier,
+        levels: tier.levels.map(level => {
+          const isCompleted = localStorage.getItem(`skill-${trackData.slug}-level-${level.level}`) === 'completed';
+          return { ...level, isCompleted };
+        })
+      }));
+      setJourney(updatedJourney);
+    }
+  }, [trackData]);
+
+
+  if (!trackData) {
+    return notFound();
   }
-
-  const totalLevels = track.journey.reduce((sum, tier) => sum + tier.levels.length, 0);
-  const completedLevels = track.journey.reduce((sum, tier) => sum + tier.levels.filter(l => l.isCompleted).length, 0);
-  const progress = (completedLevels / totalLevels) * 100;
+  
+  const totalLevels = journey.reduce((sum, tier) => sum + tier.levels.length, 0);
+  const completedLevels = journey.reduce((sum, tier) => sum + tier.levels.filter(l => l.isCompleted).length, 0);
+  const progress = totalLevels > 0 ? (completedLevels / totalLevels) * 100 : 0;
   const currentLevel = completedLevels + 1;
 
   const getLevelIcon = (level: Level) => {
@@ -33,7 +52,7 @@ export default function SkillTrackPage({ params }: { params: { slug: string } })
 
   return (
     <div className="space-y-8">
-      <PageHeader title={track.title} description={track.description} />
+      <PageHeader title={trackData.title} description={trackData.description} />
 
       <Card>
         <CardHeader>
@@ -51,7 +70,7 @@ export default function SkillTrackPage({ params }: { params: { slug: string } })
       <div className="space-y-4">
         <h2 className="text-2xl font-headline font-semibold">Your Journey</h2>
         <Accordion type="single" collapsible defaultValue="item-0" className="w-full">
-          {track.journey.map((tier, tierIndex) => {
+          {journey.map((tier, tierIndex) => {
             const isTierUnlocked = tier.levels.some(l => l.isCompleted || l.level === currentLevel);
             return (
               <AccordionItem value={`item-${tierIndex}`} key={tier.tier} disabled={!isTierUnlocked}>
@@ -68,7 +87,7 @@ export default function SkillTrackPage({ params }: { params: { slug: string } })
                         {tier.levels.map(level => (
                             <Card 
                                 key={level.level}
-                                className={`flex items-center justify-between p-4 ${level.level < currentLevel ? 'bg-secondary/30' : ''} ${level.level > currentLevel ? 'opacity-50' : ''}`}
+                                className={`flex items-center justify-between p-4 ${level.isCompleted ? 'bg-secondary/30' : ''} ${level.level > currentLevel ? 'opacity-50' : ''}`}
                             >
                                 <div className="flex items-center gap-4">
                                     {getLevelIcon(level)}
@@ -81,7 +100,7 @@ export default function SkillTrackPage({ params }: { params: { slug: string } })
                                 </div>
                                 {level.level === currentLevel && (
                                     <Button size="sm" asChild>
-                                        <Link href={`/skills/${track.slug}/${level.level}`}>Start Level</Link>
+                                        <Link href={`/skills/${trackData.slug}/${level.level}`}>Start Level</Link>
                                     </Button>
                                 )}
                             </Card>

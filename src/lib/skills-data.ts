@@ -16,7 +16,7 @@ export type Tier = {
 
 export type SkillTrack = {
   slug: string;
-  title: string;
+  title:string;
   description: string;
   level: 'Beginner' | 'Intermediate' | 'Advanced';
   category: 'Technical' | 'Soft Skill';
@@ -74,8 +74,8 @@ export const skillsData: Record<string, SkillTrack> = {
         focus: 'Syntax, data types, operators, loops, conditionals.',
         goal: 'Comfort with basics.',
         levels: [
-          { level: 1, title: 'Variables & Data Types', challengeType: 'Quiz', example: 'Declare an integer and a string variable.', isCompleted: true },
-          { level: 2, title: 'Basic Operators', challengeType: 'Quiz', example: 'Calculate the sum of two numbers.', isCompleted: true },
+          { level: 1, title: 'Variables & Data Types', challengeType: 'Quiz', example: 'Declare an integer and a string variable.' },
+          { level: 2, title: 'Basic Operators', challengeType: 'Quiz', example: 'Calculate the sum of two numbers.' },
           { level: 3, title: 'Conditional Statements', challengeType: 'Simple Exercise', example: 'Write an if-else statement to check if a number is positive.' },
           { level: 4, title: 'For Loops', challengeType: 'Simple Exercise', example: 'Write a loop to print even numbers up to 20.' },
           { level: 5, title: 'While Loops', challengeType: 'Simple Exercise', example: 'Write a loop that runs as long as a variable is less than 10.' },
@@ -138,7 +138,7 @@ export const skillsData: Record<string, SkillTrack> = {
         focus: 'Theoretical basics of communication, teamwork, confidence.',
         goal: 'Understand key principles.',
         levels: [
-          { level: 1, title: 'The 3 Vs of Communication', challengeType: 'Quiz', example: 'What are the three core components of communication?', isCompleted: true },
+          { level: 1, title: 'The 3 Vs of Communication', challengeType: 'Quiz', example: 'What are the three core components of communication?' },
           { level: 2, title: 'Understanding Your Audience', challengeType: 'Scenario-based Choice', example: 'How would you tailor a speech for engineers vs. artists?' },
           { level: 3, title: 'Structuring a Speech', challengeType: 'Quiz', example: 'What are the key parts of a compelling presentation?' },
           { level: 4, title: 'Overcoming Stage Fright', challengeType: 'Scenario-based Choice', example: 'You feel nervous before a talk. What is the best first step?' },

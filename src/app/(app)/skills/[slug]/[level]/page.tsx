@@ -1,7 +1,7 @@
 "use client";
 
-import { notFound, useParams } from 'next/navigation';
-import { useState, useMemo } from 'react';
+import { notFound, useParams, useRouter } from 'next/navigation';
+import { useState, useMemo, useEffect } from 'react';
 import { skillsData } from '@/lib/skills-data';
 import { PageHeader } from '@/components/page-header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -9,25 +9,40 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { Terminal, Lightbulb, Loader2 } from 'lucide-react';
+import { Terminal, Lightbulb, Loader2, ArrowRight } from 'lucide-react';
 import { provideAiSkillFeedback, type ProvideAiSkillFeedbackOutput } from '@/ai/flows/provide-ai-skill-feedback';
 
 export default function SkillLevelPage() {
-  const params = useParams<{ slug: string, level: string }>();
-  const { slug, level: levelStr } = params;
-
-  const { track, level } = useMemo(() => {
-    const trackData = skillsData[slug];
-    const levelNumber = parseInt(levelStr, 10);
-    if (!trackData) return { track: null, level: null };
-
-    const levelData = trackData.journey.flatMap(tier => tier.levels).find(l => l.level === levelNumber);
-    return { track: trackData, level: levelData };
-  }, [slug, levelStr]);
+  const router = useRouter();
+  const params = useParams();
+  const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
+  const levelStr = Array.isArray(params.level) ? params.level[0] : params.level;
 
   const [userInput, setUserInput] = useState('');
   const [feedback, setFeedback] = useState<ProvideAiSkillFeedbackOutput | null>(null);
   const [loading, setLoading] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(false);
+
+  const { track, level, allLevels } = useMemo(() => {
+    const trackData = skillsData[slug];
+    const levelNumber = parseInt(levelStr, 10);
+    if (!trackData) return { track: null, level: null, allLevels: [] };
+
+    const allLevels = trackData.journey.flatMap(tier => tier.levels);
+    const levelData = allLevels.find(l => l.level === levelNumber);
+    return { track: trackData, level: levelData, allLevels };
+  }, [slug, levelStr]);
+
+  useEffect(() => {
+    if (isCompleted) {
+      try {
+        localStorage.setItem(`skill-${slug}-level-${levelStr}`, 'completed');
+      } catch (error) {
+        console.warn('Could not save progress to localStorage', error)
+      }
+    }
+  }, [isCompleted, slug, levelStr]);
+
   
   if (!track || !level) {
     return notFound();
@@ -46,6 +61,9 @@ export default function SkillLevelPage() {
         userInput: userInput,
       });
       setFeedback(response);
+      if (response.isCorrect) {
+        setIsCompleted(true);
+      }
     } catch (error) {
       console.error("Failed to get AI feedback", error);
       // Optionally, set an error state to show in the UI
@@ -54,6 +72,14 @@ export default function SkillLevelPage() {
     }
   };
 
+  const handleNextLevel = () => {
+    const nextLevel = allLevels.find(l => l.level === level.level + 1);
+    if (nextLevel) {
+      router.push(`/skills/${slug}/${nextLevel.level}`);
+    } else {
+      router.push(`/skills/${slug}`);
+    }
+  };
 
   return (
     <div className="space-y-8">
@@ -87,9 +113,9 @@ export default function SkillLevelPage() {
                           className="h-64 font-code"
                           value={userInput}
                           onChange={(e) => setUserInput(e.target.value)}
-                          disabled={loading}
+                          disabled={loading || isCompleted}
                       />
-                      <Button onClick={handleFeedbackSubmit} disabled={loading || !userInput.trim()}>
+                      <Button onClick={handleFeedbackSubmit} disabled={loading || !userInput.trim() || isCompleted}>
                         {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Submit for AI Feedback
                       </Button>
@@ -157,6 +183,12 @@ export default function SkillLevelPage() {
                                 {feedback.suggestion}
                             </AlertDescription>
                         </Alert>
+
+                        {feedback.isCorrect && (
+                            <Button onClick={handleNextLevel} className="w-full">
+                                Go to Next Level <ArrowRight className="ml-2" />
+                            </Button>
+                        )}
                     </div>
                 )}
                 
