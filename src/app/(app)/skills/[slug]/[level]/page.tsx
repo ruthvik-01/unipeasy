@@ -1,7 +1,9 @@
+
 "use client";
 
 import { notFound, useParams, useRouter } from 'next/navigation';
 import { useState, useMemo, useEffect } from 'react';
+import Link from 'next/link';
 import { skillsData } from '@/lib/skills-data';
 import { PageHeader } from '@/components/page-header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -9,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { Terminal, Lightbulb, Loader2, ArrowRight } from 'lucide-react';
+import { Terminal, Lightbulb, Loader2, ArrowRight, ArrowLeft } from 'lucide-react';
 import { provideAiSkillFeedback, type ProvideAiSkillFeedbackOutput } from '@/ai/flows/provide-ai-skill-feedback';
 
 export default function SkillLevelPage() {
@@ -35,14 +37,26 @@ export default function SkillLevelPage() {
   }, [slug, levelStr]);
 
   useEffect(() => {
-    if (isCompleted && slug && levelStr) {
+    if (slug && levelStr) {
+      try {
+        const completed = localStorage.getItem(`skill-${slug}-level-${levelStr}`) === 'completed';
+        setIsCompleted(completed);
+      } catch (error) {
+        console.warn('Could not read progress from localStorage', error);
+      }
+    }
+  }, [slug, levelStr]);
+
+
+  useEffect(() => {
+    if (isCompleted && slug && levelStr && feedback?.isCorrect) {
       try {
         localStorage.setItem(`skill-${slug}-level-${levelStr}`, 'completed');
       } catch (error) {
         console.warn('Could not save progress to localStorage', error)
       }
     }
-  }, [isCompleted, slug, levelStr]);
+  }, [isCompleted, slug, levelStr, feedback]);
 
   
   if (!track || !level) {
@@ -91,10 +105,17 @@ export default function SkillLevelPage() {
 
   return (
     <div className="space-y-8">
-      <PageHeader 
-        title={`${track.title} - Level ${level.level}`}
-        description={level.title}
-      />
+      <div className="flex items-center gap-4">
+        <Button variant="outline" size="icon" asChild>
+          <Link href={`/skills/${slug}`}>
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
+        </Button>
+        <PageHeader 
+          title={`${track.title} - Level ${level.level}`}
+          description={level.title}
+        />
+      </div>
 
       <div className="grid lg:grid-cols-2 gap-8">
         <Card>
@@ -110,7 +131,7 @@ export default function SkillLevelPage() {
                   <Terminal className="h-4 w-4" />
                   <AlertTitle>Instructions</AlertTitle>
                   <AlertDescription>
-                      Complete the challenge described above. For coding exercises, write your code in the text area below. For other challenges, write your answer or response.
+                      Complete the challenge described above. Write your answer or code in the text area below.
                   </AlertDescription>
               </Alert>
             
