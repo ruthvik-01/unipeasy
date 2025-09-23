@@ -13,13 +13,9 @@ import { Terminal, Lightbulb, Loader2 } from 'lucide-react';
 import { provideAiSkillFeedback, type ProvideAiSkillFeedbackOutput } from '@/ai/flows/provide-ai-skill-feedback';
 
 export default function SkillLevelPage({ params }: { params: { slug: string, level: string } }) {
-  const [userInput, setUserInput] = useState('');
-  const [feedback, setFeedback] = useState<ProvideAiSkillFeedbackOutput | null>(null);
-  const [loading, setLoading] = useState(false);
-
   const track = skillsData[params.slug];
   const levelNumber = parseInt(params.level, 10);
-
+  
   if (!track) {
     notFound();
   }
@@ -29,6 +25,10 @@ export default function SkillLevelPage({ params }: { params: { slug: string, lev
   if (!level) {
     notFound();
   }
+
+  const [userInput, setUserInput] = useState('');
+  const [feedback, setFeedback] = useState<ProvideAiSkillFeedbackOutput | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleFeedbackSubmit = async () => {
     if (!userInput.trim()) return;
@@ -77,7 +77,7 @@ export default function SkillLevelPage({ params }: { params: { slug: string, lev
                   </AlertDescription>
               </Alert>
             
-              {['Simple Exercise', 'Coding Challenge', 'Short Task', 'Full Program', 'Real-world Project'].includes(level.challengeType) && (
+              {['Simple Exercise', 'Coding Challenge', 'Short Task', 'Full Program', 'Real-world Project', 'Debugging', 'Bug Fixing', 'API Usage', 'Real-world Task'].includes(level.challengeType) && (
                   <div className="space-y-4">
                       <Textarea 
                           placeholder="Enter your code or response here..."
@@ -100,6 +100,27 @@ export default function SkillLevelPage({ params }: { params: { slug: string, lev
               {level.challengeType.includes('Recording') && (
                   <p className="text-muted-foreground">Audio/Video recording interface will be here.</p>
               )}
+               {level.challengeType.includes('Scenario-based Choice') && (
+                  <p className="text-muted-foreground">Scenario-based Choice interface will be here.</p>
+              )}
+               {level.challengeType.includes('Interview Q&A') && (
+                  <p className="text-muted-foreground">Interview Q&A interface will be here.</p>
+              )}
+                {level.challengeType.includes('Teamwork Simulation') && (
+                  <p className="text-muted-foreground">Teamwork Simulation interface will be here.</p>
+                )}
+                {level.challengeType.includes('Debate') && (
+                    <p className="text-muted-foreground">Debate interface will be here.</p>
+                )}
+                {level.challengeType.includes('Presentation') && (
+                    <p className="text-muted-foreground">Presentation interface will be here.</p>
+                )}
+                {level.challengeType.includes('Negotiation') && (
+                    <p className="text-muted-foreground">Negotiation interface will be here.</p>
+                )}
+                {level.challengeType.includes('Simulation') && (
+                    <p className="text-muted-foreground">Simulation interface will be here.</p>
+                )}
 
           </CardContent>
         </Card>
