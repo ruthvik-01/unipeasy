@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
 import {
   Select,
@@ -21,28 +20,37 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
 
 const strategistSchema = z.object({
-  syllabus: z.string().min(10, "Please provide syllabus details."),
+  syllabus: z.any().refine(file => file?.length == 1, "Syllabus file is required."),
   timeframe: z.string().min(3, "Please enter a timeframe."),
   learningPace: z.enum(["slow", "medium", "fast"]),
-  pastExamPapers: z.string().optional(),
+  pastExamPapers: z.any().optional(),
 });
 
 type StrategistFormValues = z.infer<typeof strategistSchema>;
+
+const readFileAsText = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (event) => resolve(event.target?.result as string);
+        reader.onerror = (error) => reject(error);
+        reader.readAsText(file);
+    });
+};
 
 export function StrategistForm() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<CreatePersonalizedStudyPlanOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const form = useForm<StrategistFormValues>({
     resolver: zodResolver(strategistSchema),
     defaultValues: {
-      syllabus: "",
       timeframe: "4 weeks",
       learningPace: "medium",
-      pastExamPapers: "",
     },
   });
 
@@ -51,9 +59,27 @@ export function StrategistForm() {
     setResult(null);
     setError(null);
     try {
-      const plan = await createPersonalizedStudyPlan(values);
+      const syllabusFile = values.syllabus[0];
+      const syllabus = await readFileAsText(syllabusFile);
+
+      let pastExamPapers = "";
+      if (values.pastExamPapers && values.pastExamPapers.length > 0) {
+        const pastExamPapersFile = values.pastExamPapers[0];
+        pastExamPapers = await readFileAsText(pastExamPapersFile);
+      }
+      
+      const plan = await createPersonalizedStudyPlan({
+        ...values,
+        syllabus,
+        pastExamPapers,
+      });
       setResult(plan);
-    } catch (e) {
+    } catch (e: any) {
+        toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to process files. Please make sure they are text files.",
+        });
       setError("Failed to generate study plan. Please try again.");
       console.error(e);
     } finally {
@@ -74,10 +100,10 @@ export function StrategistForm() {
                   <FormItem>
                     <FormLabel>Syllabus</FormLabel>
                     <FormControl>
-                      <Textarea
-                        placeholder="Paste your course syllabus or list of topics here..."
-                        className="min-h-[120px]"
-                        {...field}
+                      <Input 
+                        type="file" 
+                        accept=".txt,.md,.pdf,.doc,.docx"
+                        onChange={(e) => field.onChange(e.target.files)}
                       />
                     </FormControl>
                     <FormMessage />
@@ -131,10 +157,11 @@ export function StrategistForm() {
                   <FormItem>
                     <FormLabel>Past Exam Papers (Optional)</FormLabel>
                     <FormControl>
-                      <Textarea
-                        placeholder="Paste questions from past papers to help prioritize topics..."
-                        {...field}
-                      />
+                        <Input 
+                            type="file" 
+                            accept=".txt,.md,.pdf,.doc,.docx"
+                            onChange={(e) => field.onChange(e.target.files)}
+                        />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
