@@ -40,7 +40,8 @@ const extractTextFromFile = async (file: File): Promise<string> => {
       body: formData,
     });
     if (!response.ok) {
-      throw new Error("Failed to extract text from PDF");
+      const errorData = await response.json().catch(() => ({ error: "Failed to extract text from PDF" }));
+      throw new Error(errorData.error);
     }
     const data = await response.json();
     return data.text;
@@ -57,7 +58,6 @@ const extractTextFromFile = async (file: File): Promise<string> => {
 export function StrategistForm() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<CreatePersonalizedStudyPlanOutput | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
   const form = useForm<StrategistFormValues>({
@@ -71,7 +71,6 @@ export function StrategistForm() {
   async function onSubmit(values: StrategistFormValues) {
     setLoading(true);
     setResult(null);
-    setError(null);
     try {
       const syllabusFile = values.syllabus[0];
       const syllabus = await extractTextFromFile(syllabusFile);
@@ -92,9 +91,8 @@ export function StrategistForm() {
         toast({
             variant: "destructive",
             title: "Error",
-            description: "Failed to process files. Please make sure they are plain text or PDF files.",
+            description: e.message || "Failed to generate study plan. Please try again.",
         });
-      setError("Failed to generate study plan. Please try again.");
       console.error(e);
     } finally {
       setLoading(false);
@@ -198,13 +196,12 @@ export function StrategistForm() {
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 </div>
             )}
-            {error && <p className="text-destructive">{error}</p>}
             {result && (
                 <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap font-code">
                     {result.studyPlan}
                 </div>
             )}
-            {!loading && !result && !error && (
+            {!loading && !result && (
                 <div className="text-center text-muted-foreground h-full flex flex-col justify-center items-center">
                     <p className="font-semibold">Your study plan will appear here.</p>
                     <p>Fill out the form to get started.</p>
