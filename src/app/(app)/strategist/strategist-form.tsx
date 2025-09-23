@@ -40,8 +40,8 @@ const extractTextFromFile = async (file: File): Promise<string> => {
       body: formData,
     });
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ error: "Failed to extract text from PDF" }));
-      throw new Error(errorData.error || "Failed to extract text from PDF");
+      const errorData = await response.json().catch(() => ({ error: "Failed to extract text from PDF. The server returned an invalid response." }));
+      throw new Error(errorData.error || "Failed to extract text from PDF. An unknown error occurred.");
     }
     const data = await response.json();
     return data.text;
