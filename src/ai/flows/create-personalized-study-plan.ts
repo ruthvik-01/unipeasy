@@ -27,6 +27,7 @@ const StudyPlanItemSchema = z.object({
   topic: z.string().describe('The topic to study.'),
   pomodoroSessions: z.number().describe('Number of 25-minute Pomodoro sessions.'),
   priority: z.string().describe('Priority of the topic (e.g., "High", "Medium", "Low").'),
+  maxTimeToCover: z.string().describe('The maximum time to spend on this topic, in a human-readable format (e.g., "4 hours", "90 minutes").'),
 });
 
 const CreatePersonalizedStudyPlanOutputSchema = z.object({
@@ -50,7 +51,7 @@ const prompt = ai.definePrompt({
   Past Exam Papers: {{{pastExamPapers}}}
 
   Based on this information, create a prioritized Pomodoro-based timetable to maximize the student's exam score in the limited time they have.
-  The study plan should be clear, concise, and easy to follow. It should include specific topics to study, the amount of time to spend on each topic (in Pomodoro sessions of 25 minutes), and the order in which to study them. Consider the student's learning pace when allocating time to each topic.
+  The study plan should be clear, concise, and easy to follow. It should include specific topics to study, the amount of time to spend on each topic (in Pomodoro sessions of 25 minutes), the maximum time to cover the topic, and the order in which to study them. Consider the student's learning pace when allocating time to each topic.
   Return the study plan as a structured array of study items.
   `,
 });

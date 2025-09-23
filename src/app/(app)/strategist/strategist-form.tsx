@@ -180,7 +180,8 @@ export function StrategistForm() {
                             <TableHead>Day</TableHead>
                             <TableHead>Topic</TableHead>
                             <TableHead>Priority</TableHead>
-                            <TableHead className="text-right">Pomodoros</TableHead>
+                            <TableHead>Pomodoros</TableHead>
+                            <TableHead className="text-right">Max Time</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -193,7 +194,8 @@ export function StrategistForm() {
                                         {item.priority}
                                     </Badge>
                                 </TableCell>
-                                <TableCell className="text-right">{item.pomodoroSessions}</TableCell>
+                                <TableCell>{item.pomodoroSessions}</TableCell>
+                                <TableCell className="text-right">{item.maxTimeToCover}</TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
