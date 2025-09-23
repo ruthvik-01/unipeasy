@@ -43,25 +43,22 @@ const prompt = ai.definePrompt({
   name: 'createPersonalizedStudyPlanPrompt',
   input: {schema: CreatePersonalizedStudyPlanInputSchema},
   output: {schema: CreatePersonalizedStudyPlanOutputSchema},
-  prompt: `You are an AI Exam Strategist. Your goal is to generate a personalized and prioritized study plan for a student based on their syllabus, timeframe, learning pace, and past exam papers.
+  prompt: `You are an AI Exam Strategist. Based on the provided syllabus, timeframe, and learning pace, generate a prioritized study plan.
 
-  Syllabus: {{{syllabus}}}
-  Timeframe: {{{timeframe}}}
-  Learning Pace: {{{learningPace}}}
-  Past Exam Papers: {{{pastExamPapers}}}
+Syllabus: {{{syllabus}}}
+Timeframe: {{{timeframe}}}
+Learning Pace: {{{learningPace}}}
+{{#if pastExamPapers}}Past Exam Papers: {{{pastExamPapers}}}{{/if}}
 
-  Based on this information, create a prioritized timetable to maximize the student's exam score in the limited time they have.
-  The study plan should be clear, concise, and easy to follow. Instead of using "Pomodoro sessions," explicitly define the study periods and breaks. For example, "2 study blocks of 25 mins with a 5 min break in between". A standard study block is 25 minutes, followed by a 5-minute break. After four blocks, suggest a longer break of 15-30 minutes.
-  
-  The plan should include:
-  - The day/date.
-  - The specific topic to study.
-  - The study blocks and breaks (e.g., "3 study blocks of 25 mins with 5 min breaks").
-  - The priority of the topic.
-  - The maximum total time to cover the topic (e.g., "90 minutes").
-  
-  Consider the student's learning pace when allocating time. Return the study plan as a structured array of study items.
-  `,
+Create a timetable to maximize the student's exam score. Instead of "Pomodoro sessions," clearly define study and break periods (e.g., "2 study blocks of 25 mins with a 5 min break").
+
+For each item in the plan, provide:
+- The day.
+- The topic.
+- The study blocks and breaks.
+- The priority (High, Medium, Low).
+- The maximum total time to cover the topic.
+`,
 });
 
 const createPersonalizedStudyPlanFlow = ai.defineFlow(
