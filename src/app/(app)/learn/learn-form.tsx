@@ -9,13 +9,15 @@ import {
   type GenerateSimpleExplanationOutput,
 } from "@/ai/flows/generate-simple-explanation";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Loader2, BookText, Compass, Waypoints, HelpCircle } from "lucide-react";
+import { Loader2, BookText, Compass, Waypoints, HelpCircle, Save } from "lucide-react";
 import { Quiz } from "./quiz";
 import { generateEvenSimplerExplanation } from "@/ai/flows/generate-even-simpler-explanation";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { useMemoryPalace } from "@/context/memory-palace-context";
+import { useToast } from "@/hooks/use-toast";
 
 
 const learnSchema = z.object({
@@ -30,6 +32,9 @@ export function LearnForm() {
   const [error, setError] = useState<string | null>(null);
   const [simplerExplanation, setSimplerExplanation] = useState<string | null>(null);
   const [isGeneratingSimpler, setIsGeneratingSimpler] = useState(false);
+
+  const { addMemoryItem } = useMemoryPalace();
+  const { toast } = useToast();
 
   const form = useForm<LearnFormValues>({
     resolver: zodResolver(learnSchema),
@@ -70,6 +75,21 @@ export function LearnForm() {
     } finally {
       setIsGeneratingSimpler(false);
     }
+  }
+
+  const handleSave = (type: 'Explanation' | 'Analogy' | 'Mind Map', content: string) => {
+    if (!result) return;
+    addMemoryItem({
+        id: crypto.randomUUID(),
+        title: `${result.simpleExplanation.substring(0,20)}... - ${type}`,
+        content,
+        type,
+        topic: form.getValues('topic')
+    });
+    toast({
+        title: "Saved to Memory Palace!",
+        description: `Your ${type.toLowerCase()} for "${form.getValues('topic')}" has been saved.`
+    })
   }
 
   return (
@@ -122,6 +142,12 @@ export function LearnForm() {
             <CardContent>
               <p className="text-base leading-relaxed">{result.simpleExplanation}</p>
             </CardContent>
+             <CardFooter>
+              <Button variant="outline" size="sm" onClick={() => handleSave('Explanation', result.simpleExplanation)}>
+                <Save className="mr-2" />
+                Save to Memory Palace
+              </Button>
+            </CardFooter>
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center gap-4 space-y-0">
@@ -131,6 +157,12 @@ export function LearnForm() {
             <CardContent>
               <p className="text-base leading-relaxed">{result.analogy}</p>
             </CardContent>
+             <CardFooter>
+              <Button variant="outline" size="sm" onClick={() => handleSave('Analogy', result.analogy)}>
+                <Save className="mr-2" />
+                Save to Memory Palace
+              </Button>
+            </CardFooter>
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center gap-4 space-y-0">
@@ -142,6 +174,12 @@ export function LearnForm() {
                 {result.mindMap}
               </div>
             </CardContent>
+            <CardFooter>
+              <Button variant="outline" size="sm" onClick={() => handleSave('Mind Map', result.mindMap)}>
+                <Save className="mr-2" />
+                Save to Memory Palace
+              </Button>
+            </CardFooter>
           </Card>
           
           <Card>
