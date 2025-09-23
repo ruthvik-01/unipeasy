@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Loader2 } from "lucide-react";
+import { Loader2, FileUp } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -32,11 +32,40 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 
+async function extractTextFromFile(file: File): Promise<string> {
+    const formData = new FormData();
+    formData.append('file', file);
+  
+    try {
+      const response = await fetch('/api/extract-text', {
+        method: 'POST',
+        body: formData,
+      });
+  
+      if (!response.ok) {
+        let errorData;
+        try {
+            errorData = await response.json();
+        } catch (e) {
+            errorData = { error: 'Failed to extract text from PDF. The server returned an invalid response.' };
+        }
+        throw new Error(errorData.error || 'Failed to extract text from PDF. An unknown error occurred.');
+      }
+  
+      const data = await response.json();
+      return data.text;
+    } catch (error: any) {
+        console.error("Error extracting text from file:", error);
+        throw new Error(error.message || 'An unexpected error occurred during file processing.');
+    }
+  }
+
 const strategistSchema = z.object({
   syllabus: z.string().min(10, "Please enter the syllabus content."),
   timeframe: z.string().min(3, "Please enter a timeframe."),
   learningPace: z.enum(["slow", "medium", "fast"]),
   pastExamPapers: z.string().optional(),
+  examPapersFile: z.instanceof(File).optional(),
 });
 
 type StrategistFormValues = z.infer<typeof strategistSchema>;
@@ -56,12 +85,37 @@ export function StrategistForm() {
     },
   });
 
+  const examPapersFileRef = form.register("examPapersFile");
+
   async function onSubmit(values: StrategistFormValues) {
     setLoading(true);
     setResult(null);
+    let pastExamPapersContent = values.pastExamPapers || "";
+
     try {
+      if (values.examPapersFile) {
+        try {
+            pastExamPapersContent = await extractTextFromFile(values.examPapersFile);
+            toast({
+                title: "Success",
+                description: "Successfully extracted text from your file.",
+            });
+        } catch(e: any) {
+            toast({
+                variant: "destructive",
+                title: "File Error",
+                description: e.message || "Could not extract text from the uploaded file.",
+            });
+            setLoading(false);
+            return;
+        }
+      }
+
       const plan = await createPersonalizedStudyPlan({
-        ...values,
+        syllabus: values.syllabus,
+        timeframe: values.timeframe,
+        learningPace: values.learningPace,
+        pastExamPapers: pastExamPapersContent,
       });
       setResult(plan);
     } catch (e: any) {
@@ -139,23 +193,14 @@ export function StrategistForm() {
                   )}
                 />
               </div>
-              <FormField
-                control={form.control}
-                name="pastExamPapers"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Past Exam Papers (Optional)</FormLabel>
-                    <FormControl>
-                        <Textarea 
-                            placeholder="Paste content from past exam papers here..."
-                            className="h-36"
-                            {...field}
-                        />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <FormItem>
+                <FormLabel>Past Exam Papers (Optional)</FormLabel>
+                <FormControl>
+                    <Input type="file" accept=".pdf" {...examPapersFileRef} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+              
               <Button type="submit" disabled={loading} className="w-full">
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Generate Study Plan
@@ -174,32 +219,34 @@ export function StrategistForm() {
                 </div>
             )}
             {result && result.studyPlan?.length > 0 && (
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Day</TableHead>
-                            <TableHead>Topic</TableHead>
-                            <TableHead>Priority</TableHead>
-                            <TableHead>Study Time</TableHead>
-                            <TableHead className="text-right">Max Time</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {result.studyPlan.map((item, index) => (
-                            <TableRow key={index}>
-                                <TableCell className="font-medium">{item.day}</TableCell>
-                                <TableCell>{item.topic}</TableCell>
-                                <TableCell>
-                                    <Badge variant={item.priority === 'High' ? 'destructive' : item.priority === 'Medium' ? 'secondary' : 'outline'}>
-                                        {item.priority}
-                                    </Badge>
-                                </TableCell>
-                                <TableCell>{item.studyBlocks}</TableCell>
-                                <TableCell className="text-right">{item.maxTimeToCover}</TableCell>
+                <div className="overflow-x-auto">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Day</TableHead>
+                                <TableHead>Topic</TableHead>
+                                <TableHead>Priority</TableHead>
+                                <TableHead>Study Blocks</TableHead>
+                                <TableHead className="text-right">Max Time</TableHead>
                             </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
+                        </TableHeader>
+                        <TableBody>
+                            {result.studyPlan.map((item, index) => (
+                                <TableRow key={index}>
+                                    <TableCell className="font-medium">{item.day}</TableCell>
+                                    <TableCell>{item.topic}</TableCell>
+                                    <TableCell>
+                                        <Badge variant={item.priority === 'High' ? 'destructive' : item.priority === 'Medium' ? 'secondary' : 'outline'}>
+                                            {item.priority}
+                                        </Badge>
+                                    </TableCell>
+                                    <TableCell>{item.studyBlocks}</TableCell>
+                                    <TableCell className="text-right">{item.maxTimeToCover}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </div>
             )}
             {!loading && !result && (
                 <div className="text-center text-muted-foreground h-full flex flex-col justify-center items-center">
