@@ -78,16 +78,9 @@ const generateSimpleExplanationFlow = ai.defineFlow(
     if (!explanationOutput) {
       throw new Error('Failed to generate explanation.');
     }
-
-    const {media} = await ai.generate({
-      model: 'googleai/imagen-4.0-fast-generate-001',
-      prompt: `Generate an educational illustration for the following concept: ${explanationOutput.visualDescription}`,
-    });
     
-    const imageUrl = media.url;
-    if (!imageUrl) {
-        throw new Error('Failed to generate image.');
-    }
+    // Use a placeholder image service to avoid Imagen API errors.
+    const imageUrl = `https://picsum.photos/seed/${encodeURIComponent(input.topic)}/512/512`;
 
     return {
       ...explanationOutput,
