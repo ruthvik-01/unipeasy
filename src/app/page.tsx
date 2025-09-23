@@ -21,6 +21,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Rocket } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const onboardingSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -33,6 +34,7 @@ const onboardingSchema = z.object({
 type OnboardingFormValues = z.infer<typeof onboardingSchema>;
 
 export default function OnboardingPage() {
+  const router = useRouter();
   const form = useForm<OnboardingFormValues>({
     resolver: zodResolver(onboardingSchema),
     defaultValues: {
@@ -45,8 +47,7 @@ export default function OnboardingPage() {
   function onSubmit(values: OnboardingFormValues) {
     console.log(values);
     // Here you would typically handle user creation and redirect
-    // For now, we just log the values. A redirect to /dashboard would be next.
-    alert("Onboarding complete! You would now be redirected to the dashboard.");
+    router.push("/dashboard");
   }
 
   return (
