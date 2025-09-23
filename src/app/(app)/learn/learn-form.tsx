@@ -12,7 +12,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Loader2, BookText, Compass, Waypoints } from "lucide-react";
+import { Loader2, BookText, Compass, Waypoints, HelpCircle } from "lucide-react";
+import { Quiz } from "./quiz";
+import { generateEvenSimplerExplanation } from "@/ai/flows/generate-even-simpler-explanation";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+
 
 const learnSchema = z.object({
   topic: z.string().min(3, "Please enter a topic."),
@@ -24,6 +28,8 @@ export function LearnForm() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<GenerateSimpleExplanationOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [simplerExplanation, setSimplerExplanation] = useState<string | null>(null);
+  const [isGeneratingSimpler, setIsGeneratingSimpler] = useState(false);
 
   const form = useForm<LearnFormValues>({
     resolver: zodResolver(learnSchema),
@@ -36,6 +42,7 @@ export function LearnForm() {
     setLoading(true);
     setResult(null);
     setError(null);
+    setSimplerExplanation(null);
     try {
       const explanation = await generateSimpleExplanation({
         topic: values.topic,
@@ -47,6 +54,21 @@ export function LearnForm() {
       console.error(e);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleQuizFail() {
+    if (!result) return;
+    setIsGeneratingSimpler(true);
+    setSimplerExplanation(null);
+    try {
+      const response = await generateEvenSimplerExplanation({ topic: result.simpleExplanation });
+      setSimplerExplanation(response.simplerExplanation);
+    } catch (e) {
+      console.error("Failed to generate simpler explanation", e);
+      // You could set an error state here as well
+    } finally {
+      setIsGeneratingSimpler(false);
     }
   }
 
@@ -121,6 +143,34 @@ export function LearnForm() {
               </div>
             </CardContent>
           </Card>
+          
+          <Card>
+            <CardHeader className="flex flex-row items-center gap-4 space-y-0">
+              <HelpCircle className="w-6 h-6 text-primary" />
+              <CardTitle className="font-headline">Knowledge Check</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Quiz questions={result.quiz} onQuizFail={handleQuizFail} />
+            </CardContent>
+          </Card>
+
+          {isGeneratingSimpler && (
+            <div className="flex items-center justify-center rounded-lg border bg-card p-8">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <p className="ml-4 text-muted-foreground">Don't worry, let's try another angle. Generating a simpler explanation...</p>
+            </div>
+          )}
+
+          {simplerExplanation && (
+             <Alert variant="default" className="bg-secondary">
+                <BookText className="h-4 w-4" />
+                <AlertTitle className="font-headline">Let's Try Again: A Simpler View</AlertTitle>
+                <AlertDescription className="prose prose-sm dark:prose-invert max-w-none">
+                  {simplerExplanation}
+                </AlertDescription>
+            </Alert>
+          )}
+
         </div>
       )}
     </div>

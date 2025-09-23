@@ -24,6 +24,12 @@ export type GenerateSimpleExplanationInput = z.infer<
   typeof GenerateSimpleExplanationInputSchema
 >;
 
+const QuizQuestionSchema = z.object({
+  question: z.string().describe('The quiz question.'),
+  options: z.array(z.string()).describe('An array of 4 multiple-choice options.'),
+  correctAnswer: z.string().describe('The correct answer from the options.'),
+});
+
 const GenerateSimpleExplanationOutputSchema = z.object({
   simpleExplanation: z
     .string()
@@ -32,10 +38,12 @@ const GenerateSimpleExplanationOutputSchema = z.object({
   mindMap: z
     .string()
     .describe('A mind map of the topic in a hierarchical tree structure using markdown format.'),
+  quiz: z.array(QuizQuestionSchema).describe('A 5-question multiple-choice quiz based on the topic.'),
 });
 export type GenerateSimpleExplanationOutput = z.infer<
   typeof GenerateSimpleExplanationOutputSchema
 >;
+export type QuizQuestion = z.infer<typeof QuizQuestionSchema>;
 
 export async function generateSimpleExplanation(
   input: GenerateSimpleExplanationInput
@@ -53,13 +61,11 @@ const explanationPrompt = ai.definePrompt({
 
   The student wants to understand: {{{topic}}}
 
-  Provide a simple explanation, a real-life analogy, and a mind map to aid understanding. The explanation should be {{preferredExplanationLength}} in length. 
+  Provide a simple explanation, a real-life analogy, a mind map, and a 5-question multiple-choice quiz to aid understanding. The explanation should be {{preferredExplanationLength}} in length. 
   
   For the mind map, generate it in a hierarchical tree structure using markdown lists. Start with the main topic and branch out into key concepts, sub-topics, and important details. This structure should be easy to remember.
 
-  Explanation:
-  Analogy:
-  Mind Map: `,
+  For the quiz, provide 5 multiple-choice questions with 4 options each. Ensure the correct answer is one of the options.`,
 });
 
 const generateSimpleExplanationFlow = ai.defineFlow(
