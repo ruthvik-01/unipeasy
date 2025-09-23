@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'Project Ascend',
+  title: 'Smart Education',
   description: 'AI-Powered Learning Platform',
 };
 

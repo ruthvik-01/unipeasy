@@ -63,7 +63,7 @@ export function Navigation() {
         <div className="flex items-center gap-2 p-2">
           <Rocket className="w-8 h-8 text-primary" />
           <span className="text-xl font-headline font-semibold">
-            Project Ascend
+            Smart Education
           </span>
         </div>
       </SidebarHeader>

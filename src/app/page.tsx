@@ -55,7 +55,7 @@ export default function OnboardingPage() {
       <div className="flex items-center gap-4 mb-8">
         <Rocket className="w-12 h-12 text-primary" />
         <h1 className="text-5xl font-headline font-bold text-foreground">
-          Project Ascend
+          Smart Education
         </h1>
       </div>
       <Card className="w-full max-w-md shadow-2xl">
