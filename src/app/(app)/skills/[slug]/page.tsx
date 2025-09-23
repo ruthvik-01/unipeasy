@@ -100,9 +100,11 @@ export default function SkillTrackPage() {
                                         </p>
                                     </div>
                                 </div>
-                                {level.level <= currentLevel && !level.isCompleted && (
+                                {level.level <= currentLevel && (
                                     <Button size="sm" asChild>
-                                        <Link href={`/skills/${trackData.slug}/${level.level}`}>Start Level</Link>
+                                        <Link href={`/skills/${trackData.slug}/${level.level}`}>
+                                            {level.isCompleted ? 'Re-attempt' : 'Start Level'}
+                                        </Link>
                                     </Button>
                                 )}
                             </Card>
