@@ -43,7 +43,6 @@ const prompt = ai.definePrompt({
   name: 'createPersonalizedStudyPlanPrompt',
   input: {schema: CreatePersonalizedStudyPlanInputSchema},
   output: {schema: CreatePersonalizedStudyPlanOutputSchema},
-  model: 'googleai/gemini-2.5-flash',
   prompt: `You are an AI Exam Strategist. Your goal is to generate a personalized and prioritized study plan for a student based on their syllabus, timeframe, learning pace, and past exam papers.
 
   Syllabus: {{{syllabus}}}
