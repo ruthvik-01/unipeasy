@@ -14,10 +14,10 @@ export async function POST(req: NextRequest) {
     const data = await pdf(buffer);
 
     return NextResponse.json({text: data.text});
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error parsing PDF:', error);
     return NextResponse.json(
-      {error: 'Failed to parse PDF file.'},
+      {error: error.message || 'Failed to parse PDF file.'},
       {status: 500}
     );
   }
