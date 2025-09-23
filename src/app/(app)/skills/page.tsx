@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { PageHeader } from "@/components/page-header";
 import {
   Card,
@@ -12,37 +13,7 @@ import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Star } from "lucide-react";
-
-const skillTracks = [
-  {
-    title: "Python for Data Science",
-    description: "Master Python programming for data analysis and machine learning.",
-    level: "Intermediate",
-    category: "Technical",
-    imageId: "skill-python",
-  },
-  {
-    title: "Public Speaking Mastery",
-    description: "Learn to deliver compelling presentations with confidence.",
-    level: "Beginner",
-    category: "Soft Skill",
-    imageId: "skill-public-speaking",
-  },
-  {
-    title: "UI/UX Design Fundamentals",
-    description: "Understand the principles of creating user-friendly digital products.",
-    level: "Beginner",
-    category: "Technical",
-    imageId: "skill-ui-ux",
-  },
-  {
-    title: "Agile Project Management",
-    description: "Lead projects effectively with agile methodologies.",
-    level: "Advanced",
-    category: "Soft Skill",
-    imageId: "skill-project-management",
-  },
-];
+import { skillTracks } from "@/lib/skills-data";
 
 export default function SkillsPage() {
   return (
@@ -82,7 +53,9 @@ export default function SkillsPage() {
                 <CardDescription className="mt-2">{track.description}</CardDescription>
               </CardContent>
               <CardFooter className="p-4 pt-0">
-                <Button className="w-full bg-accent hover:bg-accent/90">Start Training</Button>
+                <Button asChild className="w-full bg-accent hover:bg-accent/90">
+                  <Link href={`/skills/${track.slug}`}>Start Training</Link>
+                </Button>
               </CardFooter>
             </Card>
           );
