@@ -141,7 +141,7 @@ export default function SkillLevelPage() {
                       className="h-64 font-code"
                       value={userInput}
                       onChange={(e) => setUserInput(e.target.value)}
-                      disabled={loading}
+                      disabled={loading && !isCompleted}
                   />
                   <Button onClick={handleFeedbackSubmit} disabled={loading || !userInput.trim()}>
                     {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
