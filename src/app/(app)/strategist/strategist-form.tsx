@@ -32,39 +32,11 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 
-async function extractTextFromFile(file: File): Promise<string> {
-    const formData = new FormData();
-    formData.append('file', file);
-  
-    try {
-      const response = await fetch('/api/extract-text', {
-        method: 'POST',
-        body: formData,
-      });
-  
-      if (!response.ok) {
-        let errorData;
-        try {
-            errorData = await response.json();
-        } catch (e) {
-            errorData = { error: 'Failed to extract text from PDF. The server returned an invalid response.' };
-        }
-        throw new Error(errorData.error || 'Failed to extract text from PDF. An unknown error occurred.');
-      }
-  
-      const data = await response.json();
-      return data.text;
-    } catch (error: any) {
-        console.error("Error extracting text from file:", error);
-        throw new Error(error.message || 'An unexpected error occurred during file processing.');
-    }
-}
-
 const strategistSchema = z.object({
   syllabus: z.string().min(10, "Please enter the syllabus content."),
   timeframe: z.string().min(3, "Please enter a timeframe."),
   learningPace: z.enum(["slow", "medium", "fast"]),
-  examPapersFile: z.instanceof(File).optional(),
+  pastExamPapers: z.string().optional(),
 });
 
 type StrategistFormValues = z.infer<typeof strategistSchema>;
@@ -80,40 +52,20 @@ export function StrategistForm() {
       syllabus: "",
       timeframe: "4 weeks",
       learningPace: "medium",
+      pastExamPapers: "",
     },
   });
-
-  const examPapersFileRef = form.register("examPapersFile");
 
   async function onSubmit(values: StrategistFormValues) {
     setLoading(true);
     setResult(null);
-    let pastExamPapersContent = "";
 
     try {
-      if (values.examPapersFile && values.examPapersFile.size > 0) {
-        try {
-            pastExamPapersContent = await extractTextFromFile(values.examPapersFile);
-            toast({
-                title: "Success",
-                description: "Successfully extracted text from your file.",
-            });
-        } catch(e: any) {
-            toast({
-                variant: "destructive",
-                title: "File Error",
-                description: e.message || "Could not extract text from the uploaded file.",
-            });
-            setLoading(false);
-            return;
-        }
-      }
-
       const plan = await createPersonalizedStudyPlan({
         syllabus: values.syllabus,
         timeframe: values.timeframe,
         learningPace: values.learningPace,
-        pastExamPapers: pastExamPapersContent,
+        pastExamPapers: values.pastExamPapers || "",
       });
       setResult(plan);
     } catch (e: any) {
@@ -191,13 +143,23 @@ export function StrategistForm() {
                   )}
                 />
               </div>
-              <FormItem>
-                <FormLabel>Past Exam Papers (Optional PDF)</FormLabel>
-                <FormControl>
-                    <Input type="file" accept=".pdf" {...examPapersFileRef} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
+              <FormField
+                control={form.control}
+                name="pastExamPapers"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Past Exam Papers (Optional)</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Paste content from past exam papers here..."
+                        className="h-36"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               
               <Button type="submit" disabled={loading} className="w-full">
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
