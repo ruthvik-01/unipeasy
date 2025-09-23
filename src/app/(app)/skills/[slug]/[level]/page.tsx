@@ -25,16 +25,16 @@ export default function SkillLevelPage() {
 
   const { track, level, allLevels } = useMemo(() => {
     const trackData = skillsData[slug];
-    const levelNumber = parseInt(levelStr, 10);
     if (!trackData) return { track: null, level: null, allLevels: [] };
 
+    const levelNumber = parseInt(levelStr, 10);
     const allLevels = trackData.journey.flatMap(tier => tier.levels);
     const levelData = allLevels.find(l => l.level === levelNumber);
     return { track: trackData, level: levelData, allLevels };
   }, [slug, levelStr]);
 
   useEffect(() => {
-    if (isCompleted) {
+    if (isCompleted && slug && levelStr) {
       try {
         localStorage.setItem(`skill-${slug}-level-${levelStr}`, 'completed');
       } catch (error) {
@@ -73,6 +73,7 @@ export default function SkillLevelPage() {
   };
 
   const handleNextLevel = () => {
+    if (!slug) return;
     const nextLevel = allLevels.find(l => l.level === level.level + 1);
     if (nextLevel) {
       router.push(`/skills/${slug}/${nextLevel.level}`);
@@ -186,7 +187,7 @@ export default function SkillLevelPage() {
 
                         {feedback.isCorrect && (
                             <Button onClick={handleNextLevel} className="w-full">
-                                Go to Next Level <ArrowRight className="ml-2" />
+                                Go to Next Level <ArrowRight className="ml-2 h-4 w-4" />
                             </Button>
                         )}
                     </div>

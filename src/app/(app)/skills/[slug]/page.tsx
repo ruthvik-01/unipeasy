@@ -1,7 +1,7 @@
 "use client";
 
 import { notFound, useParams } from 'next/navigation';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { skillsData, type Level } from '@/lib/skills-data';
 import { PageHeader } from '@/components/page-header';
@@ -12,13 +12,15 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { CheckCircle, Lock, PlayCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-export default function SkillTrackPage({ params }: { params: { slug: string } }) {
-  const trackData = skillsData[params.slug];
+export default function SkillTrackPage() {
+  const params = useParams();
+  const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
+  const trackData = skillsData[slug];
   
   const [journey, setJourney] = useState(trackData?.journey || []);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && trackData) {
       const updatedJourney = trackData.journey.map(tier => ({
         ...tier,
         levels: tier.levels.map(level => {
@@ -98,7 +100,7 @@ export default function SkillTrackPage({ params }: { params: { slug: string } })
                                         </p>
                                     </div>
                                 </div>
-                                {level.level === currentLevel && (
+                                {level.level <= currentLevel && !level.isCompleted && (
                                     <Button size="sm" asChild>
                                         <Link href={`/skills/${trackData.slug}/${level.level}`}>Start Level</Link>
                                     </Button>
