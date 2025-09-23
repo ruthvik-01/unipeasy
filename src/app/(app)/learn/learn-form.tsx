@@ -4,12 +4,13 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import Image from "next/image";
 import {
   generateSimpleExplanation,
   type GenerateSimpleExplanationOutput,
 } from "@/ai/flows/generate-simple-explanation";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Loader2, BookText, Compass, ImageIcon } from "lucide-react";
@@ -81,6 +82,13 @@ export function LearnForm() {
         </CardContent>
       </Card>
 
+      {loading && (
+        <div className="flex items-center justify-center rounded-lg border bg-card p-8">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="ml-4 text-muted-foreground">Generating your explanation...</p>
+        </div>
+      )}
+
       {error && <p className="text-destructive">{error}</p>}
 
       {result && (
@@ -108,8 +116,17 @@ export function LearnForm() {
                 <ImageIcon className="w-6 h-6 text-primary" />
               <CardTitle className="font-headline">Visual Idea</CardTitle>
             </CardHeader>
-            <CardContent>
-              <p className="text-base italic text-muted-foreground">{result.visualDescription}</p>
+            <CardContent className="flex flex-col items-center gap-4">
+              <Image 
+                src={result.visualImageDataUri}
+                alt={result.visualDescription}
+                width={512}
+                height={512}
+                className="rounded-lg border"
+              />
+              <CardDescription className="text-center italic">
+                {result.visualDescription}
+              </CardDescription>
             </CardContent>
           </Card>
         </div>

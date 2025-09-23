@@ -32,6 +32,9 @@ const GenerateSimpleExplanationOutputSchema = z.object({
   visualDescription: z
     .string()
     .describe('A description of a visual representation of the topic.'),
+  visualImageDataUri: z
+    .string()
+    .describe('An image generated based on the visual description, as a data URI.'),
 });
 export type GenerateSimpleExplanationOutput = z.infer<
   typeof GenerateSimpleExplanationOutputSchema
@@ -43,10 +46,16 @@ export async function generateSimpleExplanation(
   return generateSimpleExplanationFlow(input);
 }
 
-const prompt = ai.definePrompt({
+const explanationPrompt = ai.definePrompt({
   name: 'generateSimpleExplanationPrompt',
   input: {schema: GenerateSimpleExplanationInputSchema},
-  output: {schema: GenerateSimpleExplanationOutputSchema},
+  output: {
+    schema: z.object({
+      simpleExplanation: z.string().describe('A simplified explanation of the topic.'),
+      analogy: z.string().describe('A real-life analogy to help understand the topic.'),
+      visualDescription: z.string().describe('A description of a visual representation of the topic.'),
+    }),
+  },
   prompt: `You are an expert educator, skilled at explaining complex topics in simple terms.
 
   The student wants to understand: {{{topic}}}
@@ -65,7 +74,24 @@ const generateSimpleExplanationFlow = ai.defineFlow(
     outputSchema: GenerateSimpleExplanationOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
-    return output!;
+    const {output: explanationOutput} = await explanationPrompt(input);
+    if (!explanationOutput) {
+      throw new Error('Failed to generate explanation.');
+    }
+
+    const {media} = await ai.generate({
+      model: 'googleai/imagen-4.0-fast-generate-001',
+      prompt: `Generate an educational illustration for the following concept: ${explanationOutput.visualDescription}`,
+    });
+    
+    const imageUrl = media.url;
+    if (!imageUrl) {
+        throw new Error('Failed to generate image.');
+    }
+
+    return {
+      ...explanationOutput,
+      visualImageDataUri: imageUrl,
+    };
   }
 );
