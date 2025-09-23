@@ -10,7 +10,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({error: 'No file uploaded.'}, {status: 400});
     }
 
-    const buffer = Buffer.from(await file.arrayBuffer());
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+    
+    // Use the pdf-parse library to extract text
     const data = await pdf(buffer);
 
     return NextResponse.json({text: data.text});
