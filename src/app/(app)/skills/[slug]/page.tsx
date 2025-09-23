@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import { skillsData, type Tier, type Level } from '@/lib/skills-data';
 import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
@@ -79,7 +80,9 @@ export default function SkillTrackPage({ params }: { params: { slug: string } })
                                     </div>
                                 </div>
                                 {level.level === currentLevel && (
-                                    <Button size="sm">Start Level</Button>
+                                    <Button size="sm" asChild>
+                                        <Link href={`/skills/${track.slug}/${level.level}`}>Start Level</Link>
+                                    </Button>
                                 )}
                             </Card>
                         ))}
