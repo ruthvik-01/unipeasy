@@ -24,6 +24,7 @@ export default function SkillLevelPage() {
   const [isCompleted, setIsCompleted] = useState(false);
 
   const { track, level, allLevels } = useMemo(() => {
+    if (!slug || !levelStr) return { track: null, level: null, allLevels: [] };
     const trackData = skillsData[slug];
     if (!trackData) return { track: null, level: null, allLevels: [] };
 
@@ -77,6 +78,12 @@ export default function SkillLevelPage() {
     const nextLevel = allLevels.find(l => l.level === level.level + 1);
     if (nextLevel) {
       router.push(`/skills/${slug}/${nextLevel.level}`);
+      // Reset component state for the new level
+      setUserInput('');
+      setFeedback(null);
+      setIsCompleted(false);
+      setLoading(false);
+
     } else {
       router.push(`/skills/${slug}`);
     }
@@ -103,55 +110,23 @@ export default function SkillLevelPage() {
                   <Terminal className="h-4 w-4" />
                   <AlertTitle>Instructions</AlertTitle>
                   <AlertDescription>
-                      Complete the challenge described above. For coding exercises, write your code in the text area below. For quizzes or scenario-based questions, choose the best option.
+                      Complete the challenge described above. For coding exercises, write your code in the text area below. For other challenges, write your answer or response.
                   </AlertDescription>
               </Alert>
             
-              {['Simple Exercise', 'Coding Challenge', 'Short Task', 'Full Program', 'Real-world Project', 'Debugging', 'Bug Fixing', 'API Usage', 'Real-world Task'].includes(level.challengeType) && (
-                  <div className="space-y-4">
-                      <Textarea 
-                          placeholder="Enter your code or response here..."
-                          className="h-64 font-code"
-                          value={userInput}
-                          onChange={(e) => setUserInput(e.target.value)}
-                          disabled={loading || isCompleted}
-                      />
-                      <Button onClick={handleFeedbackSubmit} disabled={loading || !userInput.trim() || isCompleted}>
-                        {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        Submit for AI Feedback
-                      </Button>
-                  </div>
-              )}
-              
-              {/* Placeholder for other challenge types */}
-              {level.challengeType === 'Quiz' && (
-                  <p className="text-muted-foreground">Quiz interface will be here.</p>
-              )}
-              {level.challengeType.includes('Recording') && (
-                  <p className="text-muted-foreground">Audio/Video recording interface will be here.</p>
-              )}
-               {level.challengeType.includes('Scenario-based Choice') && (
-                  <p className="text-muted-foreground">Scenario-based Choice interface will be here.</p>
-              )}
-               {level.challengeType.includes('Interview Q&A') && (
-                  <p className="text-muted-foreground">Interview Q&A interface will be here.</p>
-              )}
-                {level.challengeType.includes('Teamwork Simulation') && (
-                  <p className="text-muted-foreground">Teamwork Simulation interface will be here.</p>
-                )}
-                {level.challengeType.includes('Debate') && (
-                    <p className="text-muted-foreground">Debate interface will be here.</p>
-                )}
-                {level.challengeType.includes('Presentation') && (
-                    <p className="text-muted-foreground">Presentation interface will be here.</p>
-                )}
-                {level.challengeType.includes('Negotiation') && (
-                    <p className="text-muted-foreground">Negotiation interface will be here.</p>
-                )}
-                {level.challengeType.includes('Simulation') && (
-                    <p className="text-muted-foreground">Simulation interface will be here.</p>
-                )}
-
+              <div className="space-y-4">
+                  <Textarea 
+                      placeholder="Enter your response here..."
+                      className="h-64 font-code"
+                      value={userInput}
+                      onChange={(e) => setUserInput(e.target.value)}
+                      disabled={loading || isCompleted}
+                  />
+                  <Button onClick={handleFeedbackSubmit} disabled={loading || !userInput.trim() || isCompleted}>
+                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Submit for AI Feedback
+                  </Button>
+              </div>
           </CardContent>
         </Card>
 
