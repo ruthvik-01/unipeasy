@@ -31,7 +31,9 @@ const StudyPlanItemSchema = z.object({
 });
 
 const CreatePersonalizedStudyPlanOutputSchema = z.object({
-  studyPlan: z.array(StudyPlanItemSchema).describe('A prioritized timetable for studying, structured as a list of items.'),
+  isFeasible: z.boolean().describe('Whether the study plan is feasible within the given timeframe.'),
+  message: z.string().optional().describe('A message explaining why the plan is not feasible, if applicable.'),
+  studyPlan: z.array(StudyPlanItemSchema).optional().describe('A prioritized timetable for studying, structured as a list of items.'),
 });
 export type CreatePersonalizedStudyPlanOutput = z.infer<typeof CreatePersonalizedStudyPlanOutputSchema>;
 
@@ -43,14 +45,18 @@ const prompt = ai.definePrompt({
   name: 'createPersonalizedStudyPlanPrompt',
   input: {schema: CreatePersonalizedStudyPlanInputSchema},
   output: {schema: CreatePersonalizedStudyPlanOutputSchema},
-  prompt: `You are an AI Exam Strategist. Based on the provided syllabus, timeframe, and learning pace, generate a prioritized study plan.
+  prompt: `You are an AI Exam Strategist. Your first task is to evaluate if the provided syllabus can be realistically covered in the given timeframe.
 
 Syllabus: {{{syllabus}}}
 Timeframe: {{{timeframe}}}
 Learning Pace: {{{learningPace}}}
 {{#if pastExamPapers}}Past Exam Papers: {{{pastExamPapers}}}{{/if}}
 
-Create a timetable to maximize the student's exam score. Instead of "Pomodoro sessions," clearly define study and break periods (e.g., "2 study blocks of 25 mins with a 5 min break").
+1. **Feasibility Check**: Based on the volume of the syllabus and the learning pace, determine if the timeframe is realistic.
+   - If the timeframe is clearly impossible (e.g., a 3-month course in 2 days), set 'isFeasible' to false and provide a brief 'message' explaining why (e.g., "The provided timeframe is too short to cover the extensive syllabus."). Do not generate a study plan.
+   - If the timeframe is challenging but possible, or easily achievable, set 'isFeasible' to true.
+
+2. **Study Plan Generation**: If 'isFeasible' is true, create a prioritized timetable to maximize the student's exam score. Instead of "Pomodoro sessions," clearly define study and break periods (e.g., "2 study blocks of 25 mins with a 5 min break").
 
 For each item in the plan, provide:
 - The day.

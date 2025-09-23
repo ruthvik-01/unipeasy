@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertTriangle } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -31,6 +31,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const strategistSchema = z.object({
   syllabus: z.string().min(10, "Please enter the syllabus content."),
@@ -178,7 +179,7 @@ export function StrategistForm() {
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 </div>
             )}
-            {result && result.studyPlan?.length > 0 && (
+            {result && result.isFeasible && result.studyPlan && result.studyPlan.length > 0 && (
                 <div className="overflow-x-auto">
                     <Table>
                         <TableHeader>
@@ -207,6 +208,15 @@ export function StrategistForm() {
                         </TableBody>
                     </Table>
                 </div>
+            )}
+            {result && !result.isFeasible && (
+              <Alert variant="destructive">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>Impossible Timeframe</AlertTitle>
+                <AlertDescription>
+                  {result.message || "The provided timeframe is not realistic for the amount of content in the syllabus. Please provide a longer timeframe."}
+                </AlertDescription>
+              </Alert>
             )}
             {!loading && !result && (
                 <div className="text-center text-muted-foreground h-full flex flex-col justify-center items-center">
