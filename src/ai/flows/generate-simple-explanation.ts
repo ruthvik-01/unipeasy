@@ -29,12 +29,9 @@ const GenerateSimpleExplanationOutputSchema = z.object({
     .string()
     .describe('A simplified explanation of the topic.'),
   analogy: z.string().describe('A real-life analogy to help understand the topic.'),
-  visualDescription: z
+  mindMap: z
     .string()
-    .describe('A description of a visual representation of the topic.'),
-  visualImageDataUri: z
-    .string()
-    .describe('An image generated based on the visual description, as a data URI.'),
+    .describe('A mind map of the topic in markdown format.'),
 });
 export type GenerateSimpleExplanationOutput = z.infer<
   typeof GenerateSimpleExplanationOutputSchema
@@ -50,21 +47,17 @@ const explanationPrompt = ai.definePrompt({
   name: 'generateSimpleExplanationPrompt',
   input: {schema: GenerateSimpleExplanationInputSchema},
   output: {
-    schema: z.object({
-      simpleExplanation: z.string().describe('A simplified explanation of the topic.'),
-      analogy: z.string().describe('A real-life analogy to help understand the topic.'),
-      visualDescription: z.string().describe('A description of a visual representation of the topic.'),
-    }),
+    schema: GenerateSimpleExplanationOutputSchema,
   },
   prompt: `You are an expert educator, skilled at explaining complex topics in simple terms.
 
   The student wants to understand: {{{topic}}}
 
-  Provide a simple explanation, a real-life analogy, and a description of a visual representation to aid understanding. The explanation should be {{preferredExplanationLength}} in length.
+  Provide a simple explanation, a real-life analogy, and a mind map to aid understanding. The explanation should be {{preferredExplanationLength}} in length. The mind map should be in markdown format.
 
   Explanation:
   Analogy:
-  Visual Description: `,
+  Mind Map: `,
 });
 
 const generateSimpleExplanationFlow = ai.defineFlow(
@@ -74,17 +67,11 @@ const generateSimpleExplanationFlow = ai.defineFlow(
     outputSchema: GenerateSimpleExplanationOutputSchema,
   },
   async input => {
-    const {output: explanationOutput} = await explanationPrompt(input);
-    if (!explanationOutput) {
+    const {output} = await explanationPrompt(input);
+    if (!output) {
       throw new Error('Failed to generate explanation.');
     }
     
-    // Use Unsplash for more relevant images.
-    const imageUrl = `https://images.unsplash.com/photo-1653387141060-9a9834f47777?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxjb2RlJTIwcHJvZ3JhbW1pbmd8ZW58MHx8fHwxNzU4NTk3NTgwfDA&ixlib=rb-4.1.0&q=80&w=1080`;
-
-    return {
-      ...explanationOutput,
-      visualImageDataUri: imageUrl,
-    };
+    return output;
   }
 );

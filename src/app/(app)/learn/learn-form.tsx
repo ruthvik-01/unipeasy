@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import Image from "next/image";
 import {
   generateSimpleExplanation,
   type GenerateSimpleExplanationOutput,
@@ -13,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Loader2, BookText, Compass, ImageIcon } from "lucide-react";
+import { Loader2, BookText, Compass, Waypoints } from "lucide-react";
 
 const learnSchema = z.object({
   topic: z.string().min(3, "Please enter a topic."),
@@ -25,7 +24,6 @@ export function LearnForm() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<GenerateSimpleExplanationOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [topic, setTopic] = useState('');
 
   const form = useForm<LearnFormValues>({
     resolver: zodResolver(learnSchema),
@@ -38,7 +36,6 @@ export function LearnForm() {
     setLoading(true);
     setResult(null);
     setError(null);
-    setTopic(values.topic)
     try {
       const explanation = await generateSimpleExplanation({
         topic: values.topic,
@@ -115,21 +112,13 @@ export function LearnForm() {
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center gap-4 space-y-0">
-                <ImageIcon className="w-6 h-6 text-primary" />
-              <CardTitle className="font-headline">Visual Idea</CardTitle>
+                <Waypoints className="w-6 h-6 text-primary" />
+              <CardTitle className="font-headline">Mind Map</CardTitle>
             </CardHeader>
-            <CardContent className="flex flex-col items-center gap-4">
-              <Image 
-                src={result.visualImageDataUri}
-                alt={result.visualDescription}
-                width={512}
-                height={512}
-                className="rounded-lg border"
-                data-ai-hint={topic}
-              />
-              <CardDescription className="text-center italic">
-                {result.visualDescription}
-              </CardDescription>
+            <CardContent>
+              <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap font-code">
+                {result.mindMap}
+              </div>
             </CardContent>
           </Card>
         </div>
