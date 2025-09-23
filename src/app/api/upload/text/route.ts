@@ -13,13 +13,11 @@ export async function POST(req: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
     
-    // Use the pdf-parse library to extract text from the buffer
     const data = await pdf(buffer);
 
     return NextResponse.json({text: data.text});
   } catch (error: any) {
     console.error('Error parsing PDF on server:', error);
-    // Return a more specific error message
     return NextResponse.json(
       {error: `Failed to parse PDF file on the server. Details: ${error.message || 'Unknown error'}`},
       {status: 500}
