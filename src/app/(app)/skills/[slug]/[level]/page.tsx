@@ -1,7 +1,7 @@
 "use client";
 
-import { notFound } from 'next/navigation';
-import { useState } from 'react';
+import { notFound, useParams } from 'next/navigation';
+import { useState, useMemo } from 'react';
 import { skillsData } from '@/lib/skills-data';
 import { PageHeader } from '@/components/page-header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -12,23 +12,26 @@ import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Terminal, Lightbulb, Loader2 } from 'lucide-react';
 import { provideAiSkillFeedback, type ProvideAiSkillFeedbackOutput } from '@/ai/flows/provide-ai-skill-feedback';
 
-export default function SkillLevelPage({ params }: { params: { slug: string, level: string } }) {
-  const track = skillsData[params.slug];
-  const levelNumber = parseInt(params.level, 10);
-  
-  if (!track) {
-    notFound();
-  }
+export default function SkillLevelPage() {
+  const params = useParams<{ slug: string, level: string }>();
+  const { slug, level: levelStr } = params;
 
-  const level = track.journey.flatMap(tier => tier.levels).find(l => l.level === levelNumber);
+  const { track, level } = useMemo(() => {
+    const trackData = skillsData[slug];
+    const levelNumber = parseInt(levelStr, 10);
+    if (!trackData) return { track: null, level: null };
 
-  if (!level) {
-    notFound();
-  }
+    const levelData = trackData.journey.flatMap(tier => tier.levels).find(l => l.level === levelNumber);
+    return { track: trackData, level: levelData };
+  }, [slug, levelStr]);
 
   const [userInput, setUserInput] = useState('');
   const [feedback, setFeedback] = useState<ProvideAiSkillFeedbackOutput | null>(null);
   const [loading, setLoading] = useState(false);
+  
+  if (!track || !level) {
+    return notFound();
+  }
 
   const handleFeedbackSubmit = async () => {
     if (!userInput.trim()) return;
