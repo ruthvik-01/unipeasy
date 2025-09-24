@@ -104,7 +104,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8">
       <PageHeader
-        title="Welcome back, Alex!"
+        title="Welcome back, Yash!"
         description="Here’s your personalized hub for ascending to new heights."
       />
 

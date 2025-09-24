@@ -105,9 +105,9 @@ export function Navigation() {
             </AvatarFallback>
           </Avatar>
           <div className="flex flex-col">
-            <span className="font-semibold text-sm">Alex Ryder</span>
+            <span className="font-semibold text-sm">Yash</span>
             <span className="text-xs text-muted-foreground">
-              alex.ryder@example.com
+              yash@example.com
             </span>
           </div>
         </div>
