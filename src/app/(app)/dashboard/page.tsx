@@ -157,6 +157,22 @@ export default function DashboardPage() {
                     </CardContent>
                 </Card>
             )}
+
+            <Card>
+                <CardHeader>
+                    <CardTitle className="font-headline">Quick Access</CardTitle>
+                </CardHeader>
+                <CardContent className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    {quickAccessItems.map((item) => (
+                        <Link href={item.href} key={item.title}>
+                            <div className="flex flex-col items-center justify-center p-4 rounded-lg bg-secondary hover:bg-secondary/80 text-center transition-colors aspect-square">
+                                <item.icon className={`h-8 w-8 mb-2 text-secondary-foreground`} />
+                                <span className="text-sm font-medium text-secondary-foreground">{item.title}</span>
+                            </div>
+                        </Link>
+                    ))}
+                </CardContent>
+            </Card>
             
             <Card>
                 <CardHeader>
@@ -194,7 +210,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-6">
+        <div className="lg:col-span-1 space-y-6">
             <Card>
                 <CardHeader>
                     <CardTitle className="font-headline">Progress Overview</CardTitle>
@@ -223,22 +239,6 @@ export default function DashboardPage() {
                         </p>
                     </div>
                     )}
-                </CardContent>
-            </Card>
-
-            <Card>
-                <CardHeader>
-                    <CardTitle className="font-headline">Quick Access</CardTitle>
-                </CardHeader>
-                <CardContent className="grid grid-cols-2 gap-4">
-                    {quickAccessItems.map((item) => (
-                        <Link href={item.href} key={item.title}>
-                            <div className="flex flex-col items-center justify-center p-4 rounded-lg bg-secondary hover:bg-secondary/80 text-center transition-colors">
-                                <item.icon className={`h-8 w-8 mb-2 text-secondary-foreground`} />
-                                <span className="text-sm font-medium text-secondary-foreground">{item.title}</span>
-                            </div>
-                        </Link>
-                    ))}
                 </CardContent>
             </Card>
         </div>
