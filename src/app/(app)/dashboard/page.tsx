@@ -165,7 +165,7 @@ export default function DashboardPage() {
                 <CardContent className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                     {quickAccessItems.map((item) => (
                         <Link href={item.href} key={item.title}>
-                            <div className="flex flex-col items-center justify-center p-4 rounded-lg bg-secondary hover:bg-secondary/80 text-center transition-colors aspect-square">
+                            <div className="flex flex-col items-center justify-center p-4 rounded-lg bg-secondary hover:bg-accent/20 text-center transition-colors aspect-square">
                                 <item.icon className={`h-8 w-8 mb-2 text-secondary-foreground`} />
                                 <span className="text-sm font-medium text-secondary-foreground">{item.title}</span>
                             </div>
