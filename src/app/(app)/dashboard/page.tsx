@@ -19,7 +19,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { skillsData, type SkillTrack } from "@/lib/skills-data";
@@ -57,16 +56,6 @@ const quickAccessItems = [
     icon: BrainCircuit,
     color: "text-yellow-500",
     bgColor: "bg-yellow-50",
-  },
-];
-
-const studyBlocks = [
-  { subject: "Quantum Physics", time: "Today, 4:00 PM", duration: "25 min" },
-  { subject: "Data Structures", time: "Today, 7:00 PM", duration: "50 min" },
-  {
-    subject: "Shakespearean Literature",
-    time: "Tomorrow, 10:00 AM",
-    duration: "25 min",
   },
 ];
 
@@ -149,8 +138,8 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
+      <div className="grid gap-6">
+        <Card>
           <CardHeader>
             <CardTitle className="font-headline">Progress Overview</CardTitle>
             <CardDescription>
@@ -182,37 +171,6 @@ export default function DashboardPage() {
                 </Button>
               </div>
             )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="font-headline">
-              Upcoming Study Blocks
-            </CardTitle>
-            <CardDescription>
-              Your Pomodoro sessions for today and tomorrow.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-4">
-              {studyBlocks.map((block) => (
-                <li key={block.subject} className="flex items-center gap-4">
-                  <div className="p-3 rounded-full bg-gray-100 dark:bg-gray-800">
-                    <BookOpen className="h-5 w-5 text-gray-500" />
-                  </div>
-                  <div>
-                    <p className="font-semibold">{block.subject}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {block.time}
-                    </p>
-                  </div>
-                  <Badge variant="secondary" className="ml-auto">
-                    {block.duration}
-                  </Badge>
-                </li>
-              ))}
-            </ul>
           </CardContent>
         </Card>
       </div>
