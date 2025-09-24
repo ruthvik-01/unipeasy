@@ -37,6 +37,17 @@ export default function SkillLevelPage() {
   }, [slug, levelStr]);
 
   useEffect(() => {
+    if (slug && level?.level) {
+        try {
+            localStorage.setItem('lastVisitedSkillLevel', JSON.stringify({ slug, level: level.level }));
+        } catch (error) {
+            console.warn('Could not save last visited level to localStorage', error);
+        }
+    }
+}, [slug, level]);
+
+
+  useEffect(() => {
     if (slug && levelStr) {
       try {
         const completed = localStorage.getItem(`skill-${slug}-level-${levelStr}`) === 'completed';
@@ -141,7 +152,7 @@ export default function SkillLevelPage() {
                       className="h-64 font-code"
                       value={userInput}
                       onChange={(e) => setUserInput(e.target.value)}
-                      disabled={loading && !isCompleted}
+                      disabled={loading}
                   />
                   <Button onClick={handleFeedbackSubmit} disabled={loading || !userInput.trim()}>
                     {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

@@ -11,19 +11,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useMemoryPalace } from "@/context/memory-palace-context";
 import { Button } from "@/components/ui/button";
-import { BrainCircuit, Trash2, Book, Compass, Waypoints, Loader2 } from "lucide-react";
+import { BrainCircuit, Trash2, Loader2, BookText, Compass, Waypoints } from "lucide-react";
 
 export default function MemoryPalacePage() {
   const { memoryItems, clearMemoryPalace, isLoaded } = useMemoryPalace();
-
-  const getIcon = (type: string) => {
-    switch(type) {
-      case 'Explanation': return <Book className="w-5 h-5" />;
-      case 'Analogy': return <Compass className="w-5 h-5" />;
-      case 'Mind Map': return <Waypoints className="w-5 h-5" />;
-      default: return <BrainCircuit className="w-5 h-5" />;
-    }
-  }
 
   if (!isLoaded) {
     return (
@@ -57,7 +48,7 @@ export default function MemoryPalacePage() {
           </CardDescription>
         </Card>
       ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {memoryItems.map((item) => (
             <Card key={item.id} className="flex flex-col hover:shadow-lg transition-shadow">
                 <CardHeader>
@@ -69,7 +60,7 @@ export default function MemoryPalacePage() {
                     </div>
                 </CardHeader>
               <CardContent className="flex-grow">
-                <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap">
+                <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap font-code">
                     {item.content}
                 </div>
               </CardContent>
