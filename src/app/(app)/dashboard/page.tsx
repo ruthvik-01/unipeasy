@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -28,6 +29,7 @@ import { skillsData, type SkillTrack, type Level } from "@/lib/skills-data";
 import { useState, useEffect } from "react";
 import { useMemoryPalace, type MemoryItem } from "@/context/memory-palace-context";
 import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/context/auth-context";
 
 
 const quickAccessItems = [
@@ -65,6 +67,7 @@ type LastVisitedLevel = {
 }
 
 export default function DashboardPage() {
+  const { user } = useAuth();
   const [progressData, setProgressData] = useState<ProgressData[]>([]);
   const [lastVisited, setLastVisited] = useState<LastVisitedLevel | null>(null);
   const { memoryItems, isLoaded } = useMemoryPalace();
@@ -128,7 +131,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8">
       <PageHeader
-        title="Welcome back, Yash!"
+        title={`Welcome back, ${user?.displayName || 'Yash'}!`}
         description="Here’s your personalized hub for ascending to new heights."
       />
 
@@ -165,7 +168,7 @@ export default function DashboardPage() {
                 <CardContent className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                     {quickAccessItems.map((item) => (
                         <Link href={item.href} key={item.title}>
-                            <div className="flex flex-col items-center justify-center p-4 rounded-lg bg-secondary hover:bg-accent/20 text-center transition-colors aspect-square">
+                            <div className="flex flex-col items-center justify-center p-4 rounded-lg bg-secondary hover:bg-accent/80 text-center transition-colors aspect-square">
                                 <item.icon className={`h-8 w-8 mb-2 text-secondary-foreground`} />
                                 <span className="text-sm font-medium text-secondary-foreground">{item.title}</span>
                             </div>

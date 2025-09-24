@@ -1,7 +1,8 @@
+
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Award,
   BrainCircuit,
@@ -10,6 +11,7 @@ import {
   Rocket,
   Target,
   User,
+  LogOut,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -25,6 +27,10 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useEffect, useState } from "react";
+import { useAuth } from "@/context/auth-context";
+import { auth } from "@/lib/firebase";
+import { signOut } from "firebase/auth";
+import { Button } from "./ui/button";
 
 const navItems = [
   {
@@ -56,12 +62,19 @@ const navItems = [
 
 export function Navigation() {
   const pathname = usePathname();
+  const router = useRouter();
   const isMobile = useIsMobile();
   const [isClient, setIsClient] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     setIsClient(true);
   }, []);
+  
+  const handleSignOut = async () => {
+    await signOut(auth);
+    router.push('/login');
+  }
 
   if (!isClient) {
     return null;
@@ -97,19 +110,24 @@ export function Navigation() {
       </SidebarContent>
       <SidebarSeparator />
       <SidebarFooter>
-        <div className="flex items-center gap-3 p-2">
-          <Avatar>
-            <AvatarImage src="https://picsum.photos/seed/user/40/40" />
-            <AvatarFallback>
-              <User />
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex flex-col">
-            <span className="font-semibold text-sm">Yash</span>
-            <span className="text-xs text-muted-foreground">
-              yash@example.com
-            </span>
+        <div className="flex items-center justify-between p-2">
+          <div className="flex items-center gap-3">
+              <Avatar>
+                <AvatarImage src={user?.photoURL || `https://picsum.photos/seed/${user?.uid}/40/40`} />
+                <AvatarFallback>
+                  <User />
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex flex-col">
+                <span className="font-semibold text-sm">{user?.displayName || "User"}</span>
+                <span className="text-xs text-muted-foreground">
+                  {user?.email}
+                </span>
+              </div>
           </div>
+          <Button variant="ghost" size="icon" onClick={handleSignOut} className="h-8 w-8">
+            <LogOut className="w-4 h-4" />
+          </Button>
         </div>
       </SidebarFooter>
     </div>
