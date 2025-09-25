@@ -101,6 +101,9 @@ export default function LoginPage() {
   async function handleGoogleSignIn() {
     setLoading(true);
     const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({
+      client_id: '2526625447-42u9fmi4kj1c7p8cojiesnfuun8quliq.apps.googleusercontent.com'
+    });
     try {
       await signInWithPopup(auth, provider);
       toast({ title: "Login Successful", description: "Welcome!" });
