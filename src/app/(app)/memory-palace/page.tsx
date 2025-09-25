@@ -11,10 +11,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useMemoryPalace } from "@/context/memory-palace-context";
 import { Button } from "@/components/ui/button";
-import { BrainCircuit, Trash2, Loader2, BookText, Compass, Waypoints } from "lucide-react";
+import { BrainCircuit, Trash2, Loader2, X } from "lucide-react";
 
 export default function MemoryPalacePage() {
-  const { memoryItems, clearMemoryPalace, isLoaded } = useMemoryPalace();
+  const { memoryItems, removeMemoryItem, clearMemoryPalace, isLoaded } = useMemoryPalace();
 
   if (!isLoaded) {
     return (
@@ -50,10 +50,19 @@ export default function MemoryPalacePage() {
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {memoryItems.map((item) => (
-            <Card key={item.id} className="flex flex-col hover:shadow-lg transition-shadow">
+            <Card key={item.id} className="flex flex-col hover:shadow-lg transition-shadow group relative">
+                <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="absolute top-2 right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={() => removeMemoryItem(item.id)}
+                >
+                    <X className="h-4 w-4" />
+                    <span className="sr-only">Delete item</span>
+                </Button>
                 <CardHeader>
                     <div className="flex justify-between items-start gap-2">
-                        <CardTitle className="font-headline text-lg leading-tight">
+                        <CardTitle className="font-headline text-lg leading-tight pr-8">
                             {item.topic}
                         </CardTitle>
                         <Badge variant={'secondary'}>{item.type}</Badge>

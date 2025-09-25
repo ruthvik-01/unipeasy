@@ -13,6 +13,7 @@ export interface MemoryItem {
 interface MemoryPalaceContextType {
   memoryItems: MemoryItem[];
   addMemoryItem: (item: MemoryItem) => void;
+  removeMemoryItem: (id: string) => void;
   clearMemoryPalace: () => void;
   isLoaded: boolean;
 }
@@ -52,12 +53,16 @@ export function MemoryPalaceProvider({ children }: { children: ReactNode }) {
     setMemoryItems((prevItems) => [item, ...prevItems]);
   };
 
+  const removeMemoryItem = (id: string) => {
+    setMemoryItems((prevItems) => prevItems.filter((item) => item.id !== id));
+  };
+
   const clearMemoryPalace = () => {
     setMemoryItems([]);
   };
 
   return (
-    <MemoryPalaceContext.Provider value={{ memoryItems, addMemoryItem, clearMemoryPalace, isLoaded }}>
+    <MemoryPalaceContext.Provider value={{ memoryItems, addMemoryItem, removeMemoryItem, clearMemoryPalace, isLoaded }}>
       {children}
     </MemoryPalaceContext.Provider>
   );
