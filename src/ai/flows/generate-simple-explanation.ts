@@ -73,6 +73,7 @@ const generateSimpleExplanationFlow = ai.defineFlow(
     name: 'generateSimpleExplanationFlow',
     inputSchema: GenerateSimpleExplanationInputSchema,
     outputSchema: GenerateSimpleExplanationOutputSchema,
+    retries: 3,
   },
   async input => {
     const {output} = await explanationPrompt(input);
