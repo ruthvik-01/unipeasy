@@ -57,6 +57,9 @@ const explanationPrompt = ai.definePrompt({
   output: {
     schema: GenerateSimpleExplanationOutputSchema,
   },
+  config: {
+    retries: 3,
+  },
   prompt: `You are an expert educator, skilled at explaining complex topics in simple terms.
 
   The student wants to understand: {{{topic}}}
