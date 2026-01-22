@@ -79,7 +79,7 @@ export default function LoginPage() {
         if (userCredential.user) {
             await updateProfile(userCredential.user, { displayName: values.name });
         }
-      toast({ title: "Account Created", description: "Welcome to Smart Education!" });
+      toast({ title: "Account Created", description: "Welcome to UniPeasy!" });
       router.push("/dashboard");
     } catch (error: any) {
         toast({ variant: "destructive", title: "Signup Failed", description: error.message });
@@ -93,7 +93,7 @@ export default function LoginPage() {
       <div className="flex items-center gap-4 mb-8">
         <Rocket className="w-12 h-12 text-primary" />
         <h1 className="text-5xl font-headline font-bold text-foreground">
-          Smart Education
+          UniPeasy
         </h1>
       </div>
       <Card className="w-full max-w-md shadow-2xl">

@@ -5,8 +5,8 @@ import type { QuizQuestion } from "@/ai/flows/generate-simple-explanation";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { CheckCircle, XCircle, Award, BookDashed } from "lucide-react";
+import { Card, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
+import { CheckCircle, XCircle, Trophy, BookOpen, ArrowRight } from "lucide-react";
 
 interface QuizProps {
   questions: QuizQuestion[];
@@ -47,39 +47,51 @@ export function Quiz({ questions, onQuizFail }: QuizProps) {
   };
 
   if (showResults && score !== null) {
+    const isPassing = score >= 3;
     return (
-      <Card className="bg-secondary/50">
-        <CardContent className="p-6 text-center">
-            {score >= 3 ? (
-                 <Award className="mx-auto h-12 w-12 text-green-500" />
+      <Card className="border shadow-sm">
+        <CardContent className="p-8 text-center">
+          <div className={`w-16 h-16 mx-auto rounded-full flex items-center justify-center ${isPassing ? 'bg-green-100 dark:bg-green-900/30' : 'bg-muted'}`}>
+            {isPassing ? (
+              <Trophy className="h-8 w-8 text-green-600 dark:text-green-400" />
             ) : (
-                <BookDashed className="mx-auto h-12 w-12 text-yellow-500" />
+              <BookOpen className="h-8 w-8 text-muted-foreground" />
             )}
-          <CardTitle className="mt-4 font-headline text-2xl">Quiz Complete!</CardTitle>
-          <CardDescription className="mt-2 text-lg">
-            You scored {score} out of {questions.length}.
+          </div>
+          <CardTitle className="mt-4 text-xl">
+            {isPassing ? 'Great job!' : 'Keep learning!'}
+          </CardTitle>
+          <CardDescription className="mt-2 text-base">
+            You scored {score} out of {questions.length}
           </CardDescription>
-          <div className="mt-6 space-y-4 text-left">
-            {questions.map((q, index) => (
-              <div key={index} className="rounded-lg border bg-background p-4">
-                <p className="font-semibold">{q.question}</p>
-                <div className="mt-2 flex items-center gap-2">
-                  {selectedAnswers[index] === q.correctAnswer ? (
-                    <CheckCircle className="h-5 w-5 text-green-500" />
-                  ) : (
-                    <XCircle className="h-5 w-5 text-destructive" />
+          
+          <div className="mt-8 space-y-3 text-left">
+            {questions.map((q, index) => {
+              const isCorrect = selectedAnswers[index] === q.correctAnswer;
+              return (
+                <div 
+                  key={index} 
+                  className={`rounded-lg p-4 border ${isCorrect ? 'bg-green-50 dark:bg-green-900/10 border-green-200 dark:border-green-800' : 'bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-800'}`}
+                >
+                  <p className="font-medium text-sm">{q.question}</p>
+                  <div className="mt-2 flex items-center gap-2 text-sm">
+                    {isCorrect ? (
+                      <CheckCircle className="h-4 w-4 text-green-600" />
+                    ) : (
+                      <XCircle className="h-4 w-4 text-red-600" />
+                    )}
+                    <span className={isCorrect ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}>
+                      {selectedAnswers[index] || "Not answered"}
+                    </span>
+                  </div>
+                  {!isCorrect && (
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Correct: {q.correctAnswer}
+                    </p>
                   )}
-                  <p className={selectedAnswers[index] === q.correctAnswer ? 'text-green-600' : 'text-destructive'}>
-                    Your answer: {selectedAnswers[index] || "Not answered"}
-                  </p>
                 </div>
-                {selectedAnswers[index] !== q.correctAnswer && (
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Correct answer: {q.correctAnswer}
-                  </p>
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
         </CardContent>
       </Card>
@@ -88,39 +100,64 @@ export function Quiz({ questions, onQuizFail }: QuizProps) {
 
   const currentQuestion = questions[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
+  const progressPercent = ((currentQuestionIndex + 1) / questions.length) * 100;
 
   return (
     <div className="space-y-6">
-      <div>
-        <p className="text-sm text-muted-foreground">
-          Question {currentQuestionIndex + 1} of {questions.length}
-        </p>
-        <p className="mt-1 font-semibold text-lg">{currentQuestion.question}</p>
+      {/* Progress */}
+      <div className="space-y-2">
+        <div className="flex justify-between text-sm text-muted-foreground">
+          <span>Question {currentQuestionIndex + 1} of {questions.length}</span>
+          <span>{Math.round(progressPercent)}%</span>
+        </div>
+        <div className="h-1.5 rounded-full bg-secondary overflow-hidden">
+          <div 
+            className="h-full rounded-full bg-foreground transition-all duration-300"
+            style={{ width: `${progressPercent}%` }}
+          />
+        </div>
       </div>
 
+      {/* Question */}
+      <div className="p-4 rounded-lg bg-muted/50">
+        <p className="font-medium">{currentQuestion.question}</p>
+      </div>
+
+      {/* Options */}
       <RadioGroup
         onValueChange={handleAnswerSelect}
         value={selectedAnswers[currentQuestionIndex]}
-        className="space-y-3"
+        className="space-y-2"
       >
         {currentQuestion.options.map((option, index) => (
-          <div key={index} className="flex items-center space-x-3 rounded-md border p-3 hover:bg-muted/50 transition-colors">
+          <Label 
+            key={index}
+            htmlFor={`q${currentQuestionIndex}-o${index}`}
+            className={`
+              flex items-center space-x-3 rounded-lg p-4 cursor-pointer transition-all
+              border
+              ${selectedAnswers[currentQuestionIndex] === option 
+                ? 'border-foreground bg-secondary' 
+                : 'border-border hover:bg-muted/50'
+              }
+            `}
+          >
             <RadioGroupItem value={option} id={`q${currentQuestionIndex}-o${index}`} />
-            <Label htmlFor={`q${currentQuestionIndex}-o${index}`} className="font-normal cursor-pointer flex-1">
-              {option}
-            </Label>
-          </div>
+            <span className="text-sm">{option}</span>
+          </Label>
         ))}
       </RadioGroup>
 
-      <div className="flex justify-end">
+      {/* Navigation */}
+      <div className="flex justify-end pt-2">
         {isLastQuestion ? (
           <Button onClick={handleSubmit} disabled={!selectedAnswers[currentQuestionIndex]}>
             Submit Quiz
           </Button>
         ) : (
           <Button onClick={handleNext} disabled={!selectedAnswers[currentQuestionIndex]}>
-            Next Question
+            Next
+            <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         )}
       </div>

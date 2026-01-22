@@ -3,10 +3,10 @@ import { StrategistForm } from "./strategist-form";
 
 export default function StrategistPage() {
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <PageHeader
-        title="AI Exam Strategist"
-        description="Generate a personalized, prioritized study plan to maximize your exam score in limited time."
+        title="Strategist"
+        description="Create your personalized study plan for exam success."
       />
       <StrategistForm />
     </div>

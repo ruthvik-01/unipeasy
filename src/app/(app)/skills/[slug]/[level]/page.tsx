@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { Terminal, Lightbulb, Loader2, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Terminal, Lightbulb, Loader2, ArrowRight, ArrowLeft, Trophy, CheckCircle } from 'lucide-react';
 import { provideAiSkillFeedback, type ProvideAiSkillFeedbackOutput } from '@/ai/flows/provide-ai-skill-feedback';
 
 export default function SkillLevelPage() {
@@ -92,7 +92,6 @@ export default function SkillLevelPage() {
       }
     } catch (error) {
       console.error("Failed to get AI feedback", error);
-      // Optionally, set an error state to show in the UI
     } finally {
       setLoading(false);
     }
@@ -103,12 +102,10 @@ export default function SkillLevelPage() {
     const nextLevel = allLevels.find(l => l.level === level.level + 1);
     if (nextLevel) {
       router.push(`/skills/${slug}/${nextLevel.level}`);
-      // Reset component state for the new level
       setUserInput('');
       setFeedback(null);
       setIsCompleted(false);
       setLoading(false);
-
     } else {
       router.push(`/skills/${slug}`);
     }
@@ -116,45 +113,61 @@ export default function SkillLevelPage() {
 
   return (
     <div className="space-y-8">
+      {/* Header Section */}
       <div className="flex items-center gap-4">
         <Button variant="outline" size="icon" asChild>
           <Link href={`/skills/${slug}`}>
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <PageHeader 
-          title={`${track.title} - Level ${level.level}`}
-          description={level.title}
-        />
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-1">
+            <Badge variant="secondary">Level {level.level}</Badge>
+          </div>
+          <PageHeader 
+            title={track.title}
+            description={level.title}
+          />
+        </div>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-8">
-        <Card>
-          <CardHeader>
+      <div className="grid lg:grid-cols-2 gap-6">
+        {/* Challenge Card */}
+        <Card className="border shadow-sm">
+          <CardHeader className="p-6 pb-4">
               <div className="flex items-center justify-between">
-                  <CardTitle>Your Challenge</CardTitle>
-                  <Badge variant="secondary">{level.challengeType}</Badge>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <div className="p-1.5 rounded bg-secondary">
+                      <Terminal className="w-4 h-4" />
+                    </div>
+                    Your Challenge
+                  </CardTitle>
+                  <Badge variant="outline">{level.challengeType}</Badge>
               </div>
-            <CardDescription>{level.example}</CardDescription>
+            <CardDescription className="mt-3 text-sm">{level.example}</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
-              <Alert>
-                  <Terminal className="h-4 w-4" />
-                  <AlertTitle>Instructions</AlertTitle>
-                  <AlertDescription>
-                      Complete the challenge described above. Write your answer or code in the text area below.
+          <CardContent className="space-y-4 p-6 pt-0">
+              <Alert className="bg-muted/50">
+                  <Lightbulb className="h-4 w-4" />
+                  <AlertTitle className="font-medium text-sm">Instructions</AlertTitle>
+                  <AlertDescription className="text-xs mt-1">
+                      Complete the challenge described above. Write your answer in the text area below.
                   </AlertDescription>
               </Alert>
             
-              <div className="space-y-4">
+              <div className="space-y-3">
                   <Textarea 
                       placeholder="Enter your response here..."
-                      className="h-64 font-code"
+                      className="h-48 resize-none text-sm"
                       value={userInput}
                       onChange={(e) => setUserInput(e.target.value)}
                       disabled={loading}
                   />
-                  <Button onClick={handleFeedbackSubmit} disabled={loading || !userInput.trim()}>
+                  <Button 
+                    onClick={handleFeedbackSubmit} 
+                    disabled={loading || !userInput.trim()} 
+                    className="w-full"
+                  >
                     {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Submit for AI Feedback
                   </Button>
@@ -162,51 +175,81 @@ export default function SkillLevelPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-secondary/50 dark:bg-card">
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2 font-headline">
-                    <Lightbulb />
+        {/* Feedback Card */}
+        <Card className="border shadow-sm">
+            <CardHeader className="p-6 pb-4">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                    <div className="p-1.5 rounded bg-secondary">
+                      <Lightbulb className="w-4 h-4" />
+                    </div>
                     AI Feedback
                 </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-6 pt-0">
                 {loading && (
-                    <div className="flex items-center justify-center h-full">
-                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                        <p className="ml-4 text-muted-foreground">Analyzing your submission...</p>
+                    <div className="flex flex-col items-center justify-center py-12">
+                        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                        <p className="mt-4 text-sm text-muted-foreground">Analyzing your submission...</p>
                     </div>
                 )}
 
                 {feedback && (
                     <div className="space-y-4">
-                        <Alert variant={feedback.isCorrect ? "default" : "destructive"} className="bg-background">
-                            <AlertTitle className="font-semibold">{feedback.isCorrect ? "Great Job!" : "Needs Improvement"}</AlertTitle>
-                            <AlertDescription>
-                                {feedback.feedback}
-                            </AlertDescription>
+                        <Alert className={feedback.isCorrect ? 'border-foreground/20 bg-muted/50' : ''}>
+                            <div className="flex items-start gap-3">
+                              <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                                feedback.isCorrect ? 'bg-foreground text-background' : 'bg-secondary'
+                              }`}>
+                                {feedback.isCorrect ? <Trophy className="w-4 h-4" /> : <Lightbulb className="w-4 h-4" />}
+                              </div>
+                              <div>
+                                <AlertTitle className="font-medium text-sm">
+                                  {feedback.isCorrect ? "Excellent Work!" : "Keep Going!"}
+                                </AlertTitle>
+                                <AlertDescription className="mt-1 text-sm">
+                                    {feedback.feedback}
+                                </AlertDescription>
+                              </div>
+                            </div>
                         </Alert>
-                        <Alert>
-                            <AlertTitle className="font-semibold">Next Steps</AlertTitle>
-                            <AlertDescription>
-                                {feedback.suggestion}
-                            </AlertDescription>
+                        
+                        <Alert className="bg-muted/50">
+                            <div className="flex items-start gap-3">
+                              <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center shrink-0">
+                                <CheckCircle className="w-4 h-4" />
+                              </div>
+                              <div>
+                                <AlertTitle className="font-medium text-sm">Suggestion</AlertTitle>
+                                <AlertDescription className="mt-1 text-sm">
+                                    {feedback.suggestion}
+                                </AlertDescription>
+                              </div>
+                            </div>
                         </Alert>
 
                         {feedback.isCorrect && (
                             <Button onClick={handleNextLevel} className="w-full">
-                                Go to Next Level <ArrowRight className="ml-2 h-4 w-4" />
+                                Continue to Next Level <ArrowRight className="ml-2 h-4 w-4" />
                             </Button>
                         )}
                     </div>
                 )}
                 
                 {!loading && !feedback && (
-                    <div className="text-center text-muted-foreground h-full flex flex-col justify-center items-center">
-                        <p>Your feedback will appear here after you submit your work.</p>
+                    <div className="text-center py-12 border border-dashed rounded-lg">
+                        <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-secondary flex items-center justify-center">
+                          <Lightbulb className="w-6 h-6 text-muted-foreground" />
+                        </div>
+                        <p className="font-medium text-sm">Awaiting Your Submission</p>
+                        <p className="mt-1 text-xs text-muted-foreground">AI feedback will appear here after you submit.</p>
                     </div>
                 )}
             </CardContent>
         </Card>
+      </div>
+    </div>
+  );
+}
       </div>
     </div>
   );

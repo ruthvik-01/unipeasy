@@ -13,6 +13,7 @@ import {
   User,
   LogOut,
 } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 import { cn } from "@/lib/utils";
 import {
@@ -23,10 +24,11 @@ import {
   SidebarMenuButton,
   SidebarFooter,
   SidebarSeparator,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useAuth } from "@/context/auth-context";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
@@ -65,15 +67,38 @@ export function Navigation() {
   const router = useRouter();
   const isMobile = useIsMobile();
   const [isClient, setIsClient] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const [navigatingTo, setNavigatingTo] = useState<string | null>(null);
   const { user } = useAuth();
+  const { setOpenMobile } = useSidebar();
 
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  // Reset navigating state when pathname changes
+  useEffect(() => {
+    setNavigatingTo(null);
+  }, [pathname]);
   
   const handleSignOut = async () => {
     await signOut(auth);
     router.push('/login');
+  }
+
+  const handleNavigation = (href: string) => {
+    if (pathname === href) return;
+    
+    setNavigatingTo(href);
+    
+    // Close mobile sidebar
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+    
+    startTransition(() => {
+      router.push(href);
+    });
   }
 
   if (!isClient) {
@@ -83,29 +108,45 @@ export function Navigation() {
   return (
     <div className="flex flex-col h-full">
       <SidebarHeader>
-        <div className="flex items-center gap-2 p-2">
-          <Rocket className="w-8 h-8 text-primary" />
-          <span className="text-xl font-headline font-semibold">
-            Smart Education
-          </span>
+        <div className="flex items-center justify-between p-2">
+          <div className="flex items-center gap-2">
+            <Rocket className="w-8 h-8 text-primary" />
+            <span className="text-xl font-headline font-semibold">
+              UniPeasy
+            </span>
+          </div>
+          <ThemeToggle />
         </div>
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
-          {navItems.map((item) => (
-            <SidebarMenuItem key={item.href}>
-              <SidebarMenuButton
-                asChild
-                isActive={pathname === item.href}
-                tooltip={isMobile ? undefined : item.label}
-              >
-                <Link href={item.href}>
-                  <item.icon />
+          {navItems.map((item) => {
+            const isActive = pathname === item.href;
+            const isNavigating = navigatingTo === item.href;
+            
+            return (
+              <SidebarMenuItem key={item.href}>
+                <SidebarMenuButton
+                  isActive={isActive}
+                  tooltip={isMobile ? undefined : item.label}
+                  onClick={() => handleNavigation(item.href)}
+                  className={cn(
+                    "cursor-pointer transition-all duration-300",
+                    isNavigating && "animate-pulse"
+                  )}
+                >
+                  <item.icon className={cn(
+                    "transition-transform duration-300",
+                    isNavigating && "scale-110"
+                  )} />
                   <span>{item.label}</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
+                  {isNavigating && (
+                    <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                  )}
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            );
+          })}
         </SidebarMenu>
       </SidebarContent>
       <SidebarSeparator />

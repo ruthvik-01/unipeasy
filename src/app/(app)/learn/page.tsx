@@ -3,10 +3,10 @@ import { LearnForm } from "./learn-form";
 
 export default function LearnPage() {
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <PageHeader
-        title="Interactive Learning Assistant"
-        description="Break down complex topics into simple, understandable stories with visuals and analogies."
+        title="Learn"
+        description="AI-powered explanations that make complex topics simple."
       />
       <LearnForm />
     </div>

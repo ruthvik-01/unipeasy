@@ -1,0 +1,28 @@
+{
+  "node": {
+    "40176d88961f66a30069eeddd3e8744dce889f3767": {
+      "workers": {
+        "app/(app)/learn/page": {
+          "moduleId": "[project]/.next-internal/server/app/(app)/learn/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/flows/generate-simple-explanation.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/ai/flows/generate-even-simpler-explanation.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/(app)/learn/page": "action-browser"
+      }
+    },
+    "4071a885d3a792a57634007a4587f2700a43998e66": {
+      "workers": {
+        "app/(app)/learn/page": {
+          "moduleId": "[project]/.next-internal/server/app/(app)/learn/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/flows/generate-simple-explanation.ts [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/src/ai/flows/generate-even-simpler-explanation.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/(app)/learn/page": "action-browser"
+      }
+    }
+  },
+  "edge": {},
+  "encryptionKey": "enL476/T8gxv1OGad/kE4J7JZNo+Jrf71SEIncF5hWc="
+}

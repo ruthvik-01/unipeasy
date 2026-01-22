@@ -38,7 +38,14 @@ const simplerExplanationPrompt = ai.definePrompt({
   },
   prompt: `You are an expert educator, specializing in making very complex topics extremely simple. A student has just failed a quiz on the topic of "{{{topic}}}".
 
-  Your task is to re-explain the topic in the simplest possible terms. Assume they have no prior knowledge. Use very basic language and a concrete, relatable analogy. Avoid all jargon. Keep it short and focused on the absolute core concept.`,
+  Your task is to re-explain the topic in the simplest possible terms. Assume they have no prior knowledge. Use very basic language and a concrete, relatable analogy. Avoid all jargon. Keep it short and focused on the absolute core concept.
+  
+  **FORMATTING RULES:**
+  - Use **bold** for the most important key terms (2-3 terms max)
+  - Break into 2-3 short paragraphs for easy reading
+  - Start with a one-sentence summary
+  - Use bullet points if listing anything
+  - Keep sentences short and simple`,
 });
 
 const generateEvenSimplerExplanationFlow = ai.defineFlow(
