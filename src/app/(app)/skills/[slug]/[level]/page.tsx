@@ -11,19 +11,28 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { Terminal, Lightbulb, Loader2, ArrowRight, ArrowLeft, Trophy, CheckCircle } from 'lucide-react';
+import { Terminal, Lightbulb, Loader2, ArrowRight, ArrowLeft, Trophy, CheckCircle, Sparkles, Target } from 'lucide-react';
 import { provideAiSkillFeedback, type ProvideAiSkillFeedbackOutput } from '@/ai/flows/provide-ai-skill-feedback';
+import { useAuth } from '@/context/auth-context';
+import { trackSkillLevelCompleted } from '@/lib/analytics';
+import { cn } from '@/lib/utils';
 
 export default function SkillLevelPage() {
   const router = useRouter();
   const params = useParams();
   const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
   const levelStr = Array.isArray(params.level) ? params.level[0] : params.level;
+  const { user } = useAuth();
 
   const [userInput, setUserInput] = useState('');
   const [feedback, setFeedback] = useState<ProvideAiSkillFeedbackOutput | null>(null);
   const [loading, setLoading] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const { track, level, allLevels } = useMemo(() => {
     if (!slug || !levelStr) return { track: null, level: null, allLevels: [] };
@@ -63,11 +72,23 @@ export default function SkillLevelPage() {
     if (isCompleted && slug && levelStr && feedback?.isCorrect) {
       try {
         localStorage.setItem(`skill-${slug}-level-${levelStr}`, 'completed');
+        
+        // Track skill completion in Firestore
+        if (user?.uid && track) {
+          trackSkillLevelCompleted(
+            user.uid,
+            slug,
+            track.title,
+            track.branch,
+            parseInt(levelStr, 10),
+            allLevels.length
+          ).catch(console.error);
+        }
       } catch (error) {
         console.warn('Could not save progress to localStorage', error)
       }
     }
-  }, [isCompleted, slug, levelStr, feedback]);
+  }, [isCompleted, slug, levelStr, feedback, user?.uid, track, allLevels.length]);
 
   
   if (!track || !level) {
@@ -112,7 +133,10 @@ export default function SkillLevelPage() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className={cn(
+      "space-y-8 transition-all duration-500",
+      mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+    )}>
       {/* Header Section */}
       <div className="flex items-center gap-4">
         <Button variant="outline" size="icon" asChild>
@@ -123,6 +147,7 @@ export default function SkillLevelPage() {
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1">
             <Badge variant="secondary">Level {level.level}</Badge>
+            <Badge variant="outline" className="bg-primary/5">{track.branch}</Badge>
           </div>
           <PageHeader 
             title={track.title}
@@ -133,7 +158,10 @@ export default function SkillLevelPage() {
 
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Challenge Card */}
-        <Card className="border shadow-sm">
+        <Card className={cn(
+          "border shadow-sm overflow-hidden transition-all duration-500",
+          mounted && "animate-in fade-in slide-in-from-left-4"
+        )}>
           <CardHeader className="p-6 pb-4">
               <div className="flex items-center justify-between">
                   <CardTitle className="text-lg flex items-center gap-2">
@@ -144,9 +172,20 @@ export default function SkillLevelPage() {
                   </CardTitle>
                   <Badge variant="outline">{level.challengeType}</Badge>
               </div>
-            <CardDescription className="mt-3 text-sm">{level.example}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4 p-6 pt-0">
+              {/* Highlighted Challenge Question */}
+              <div className="relative p-4 rounded-lg bg-gradient-to-br from-primary/10 via-purple-500/10 to-pink-500/10 border border-primary/20">
+                <div className="absolute -top-3 left-4">
+                  <Badge className="bg-gradient-to-r from-primary to-purple-600 text-white border-0">
+                    <Target className="w-3 h-3 mr-1" />
+                    Challenge
+                  </Badge>
+                </div>
+                <p className="text-base font-medium mt-2 leading-relaxed">{level.example}</p>
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-purple-500 to-pink-500 rounded-b-lg" />
+              </div>
+
               <Alert className="bg-muted/50">
                   <Lightbulb className="h-4 w-4" />
                   <AlertTitle className="font-medium text-sm">Instructions</AlertTitle>

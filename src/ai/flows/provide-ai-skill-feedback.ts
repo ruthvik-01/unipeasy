@@ -59,7 +59,6 @@ const provideAiSkillFeedbackFlow = ai.defineFlow(
     name: 'provideAiSkillFeedbackFlow',
     inputSchema: ProvideAiSkillFeedbackInputSchema,
     outputSchema: ProvideAiSkillFeedbackOutputSchema,
-    retries: 3,
   },
   async input => {
     const {output} = await prompt(input);

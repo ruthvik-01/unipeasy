@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { useMemoryPalace } from "@/context/memory-palace-context";
 import { Button } from "@/components/ui/button";
 import { BrainCircuit, Trash2, Loader2, X, BookOpen, Lightbulb, Map } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 
 export default function MemoryPalacePage() {
   const { memoryItems, removeMemoryItem, clearMemoryPalace, isLoaded } = useMemoryPalace();
@@ -83,8 +84,8 @@ export default function MemoryPalacePage() {
               </CardHeader>
               
               <CardContent className="flex-grow pt-0">
-                <div className="text-sm text-muted-foreground whitespace-pre-wrap max-h-32 overflow-y-auto bg-muted/50 p-3 rounded-lg">
-                  {item.content}
+                <div className="text-sm text-muted-foreground max-h-32 overflow-y-auto bg-muted/50 p-3 rounded-lg prose prose-sm prose-neutral dark:prose-invert max-w-none">
+                  <ReactMarkdown>{item.content}</ReactMarkdown>
                 </div>
               </CardContent>
             </Card>

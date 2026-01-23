@@ -7,6 +7,17 @@ export default {
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
+  safelist: [
+    // Branch colors for Materials module
+    'bg-blue-50', 'bg-blue-950/30', 'text-blue-600', 'dark:text-blue-400',
+    'bg-purple-50', 'bg-purple-950/30', 'text-purple-600', 'dark:text-purple-400',
+    'bg-cyan-50', 'bg-cyan-950/30', 'text-cyan-600', 'dark:text-cyan-400',
+    'bg-green-50', 'bg-green-950/30', 'text-green-600', 'dark:text-green-400',
+    'bg-orange-50', 'bg-orange-950/30', 'text-orange-600', 'dark:text-orange-400',
+    'bg-yellow-50', 'bg-yellow-950/30', 'text-yellow-600', 'dark:text-yellow-400',
+    'bg-amber-50', 'bg-amber-950/30', 'text-amber-700', 'dark:text-amber-400',
+    'bg-red-50', 'bg-red-950/30', 'text-red-600', 'dark:text-red-400',
+  ],
   theme: {
     container: {
       center: true,

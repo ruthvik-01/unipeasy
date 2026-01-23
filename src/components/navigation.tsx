@@ -12,6 +12,7 @@ import {
   Target,
   User,
   LogOut,
+  FolderOpen,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 
@@ -44,6 +45,11 @@ const navItems = [
     href: "/learn",
     icon: Lightbulb,
     label: "Learn",
+  },
+  {
+    href: "/materials",
+    icon: FolderOpen,
+    label: "Materials",
   },
   {
     href: "/strategist",

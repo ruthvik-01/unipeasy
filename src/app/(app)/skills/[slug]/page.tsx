@@ -3,7 +3,7 @@
 import { notFound, useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { skillsData, type Level } from '@/lib/skills-data';
+import { skillsData, type Level, type Tier, type SkillTrack } from '@/lib/skills-data';
 import { PageHeader } from '@/components/page-header';
 import { Card, CardContent } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -13,15 +13,15 @@ import { Button } from '@/components/ui/button';
 export default function SkillTrackPage() {
   const params = useParams();
   const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
-  const trackData = skillsData[slug];
+  const trackData = slug ? skillsData[slug] : undefined;
   
-  const [journey, setJourney] = useState(trackData?.journey || []);
+  const [journey, setJourney] = useState<Tier[]>(trackData?.journey || []);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && trackData) {
-      const updatedJourney = trackData.journey.map(tier => ({
+      const updatedJourney = trackData.journey.map((tier: Tier) => ({
         ...tier,
-        levels: tier.levels.map(level => {
+        levels: tier.levels.map((level: Level) => {
           const isCompleted = localStorage.getItem(`skill-${trackData.slug}-level-${level.level}`) === 'completed';
           return { ...level, isCompleted };
         })
@@ -35,8 +35,8 @@ export default function SkillTrackPage() {
     return notFound();
   }
   
-  const totalLevels = journey.reduce((sum, tier) => sum + tier.levels.length, 0);
-  const completedLevels = journey.reduce((sum, tier) => sum + tier.levels.filter(l => l.isCompleted).length, 0);
+  const totalLevels = journey.reduce((sum: number, tier: Tier) => sum + tier.levels.length, 0);
+  const completedLevels = journey.reduce((sum: number, tier: Tier) => sum + tier.levels.filter((l: Level) => l.isCompleted).length, 0);
   const progress = totalLevels > 0 ? (completedLevels / totalLevels) * 100 : 0;
   const currentLevel = completedLevels + 1;
 
@@ -75,9 +75,9 @@ export default function SkillTrackPage() {
         <h2 className="text-lg font-semibold">Your Journey</h2>
         
         <Accordion type="single" collapsible defaultValue="item-0" className="w-full space-y-3">
-          {journey.map((tier, tierIndex) => {
-            const isTierUnlocked = tier.levels.some(l => l.isCompleted || l.level === currentLevel);
-            const tierProgress = tier.levels.filter(l => l.isCompleted).length / tier.levels.length * 100;
+          {journey.map((tier: Tier, tierIndex: number) => {
+            const isTierUnlocked = tier.levels.some((l: Level) => l.isCompleted || l.level === currentLevel);
+            const tierProgress = tier.levels.filter((l: Level) => l.isCompleted).length / tier.levels.length * 100;
             
             return (
               <AccordionItem 
@@ -103,7 +103,7 @@ export default function SkillTrackPage() {
                             style={{ width: `${tierProgress}%` }}
                           />
                         </div>
-                        <span className="text-xs text-muted-foreground">{tier.levels.filter(l => l.isCompleted).length}/{tier.levels.length}</span>
+                        <span className="text-xs text-muted-foreground">{tier.levels.filter((l: Level) => l.isCompleted).length}/{tier.levels.length}</span>
                       </div>
                     </div>
                   </div>
@@ -114,7 +114,7 @@ export default function SkillTrackPage() {
                       <p className="text-sm"><span className="font-medium">Goal:</span> {tier.goal}</p>
                       
                       <div className="space-y-2">
-                          {tier.levels.map((level) => (
+                          {tier.levels.map((level: Level) => (
                               <div 
                                   key={level.level}
                                   className={`flex items-center gap-3 p-3 rounded-lg border transition-all ${

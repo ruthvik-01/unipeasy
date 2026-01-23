@@ -29,6 +29,8 @@ import { useState, useEffect } from "react";
 import { useMemoryPalace } from "@/context/memory-palace-context";
 import { useAuth } from "@/context/auth-context";
 import { cn } from "@/lib/utils";
+import { UserAnalyticsCard } from "@/components/user-analytics-card";
+import { initializeUserAnalytics } from "@/lib/analytics";
 
 const quickAccessItems = [
   {
@@ -77,6 +79,11 @@ export default function DashboardPage() {
 
   useEffect(() => {
     setMounted(true);
+
+    // Initialize user analytics
+    if (user?.uid && user?.email) {
+      initializeUserAnalytics(user.uid, user.email, user.displayName || "Student");
+    }
 
     // Calculate Progress
     const allProgress = Object.values(skillsData).map((track: SkillTrack) => {
@@ -382,6 +389,9 @@ export default function DashboardPage() {
           </Card>
         </div>
       </div>
+
+      {/* User Analytics Section */}
+      <UserAnalyticsCard />
     </div>
   );
 }

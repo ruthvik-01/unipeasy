@@ -72,7 +72,6 @@ const createPersonalizedStudyPlanFlow = ai.defineFlow(
     name: 'createPersonalizedStudyPlanFlow',
     inputSchema: CreatePersonalizedStudyPlanInputSchema,
     outputSchema: CreatePersonalizedStudyPlanOutputSchema,
-    retries: 3,
   },
   async input => {
     const {output} = await prompt(input);
