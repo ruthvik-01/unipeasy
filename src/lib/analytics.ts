@@ -454,25 +454,32 @@ export async function getPlatformAnalytics(): Promise<PlatformAnalytics> {
   }
 }
 
-// Get skills analytics - aggregated from all users
-export async function getSkillsAnalytics(): Promise<{
+// User info for skill analytics
+export interface SkillUserInfo {
+  userId: string;
+  displayName: string;
+  email: string;
+  completedLevels: number[];
+  totalLevels: number;
+  lastActiveDate: string;
+}
+
+export interface SkillAnalyticsWithUsers {
   slug: string;
   title: string;
   branch: string;
   totalCompletions: number;
   usersStarted: number;
-}[]> {
+  users: SkillUserInfo[];
+}
+
+// Get skills analytics - aggregated from all users with user details
+export async function getSkillsAnalytics(): Promise<SkillAnalyticsWithUsers[]> {
   try {
     const usersRef = collection(db, "userAnalytics");
     const usersSnapshot = await getDocs(usersRef);
     
-    const skillStats: Record<string, {
-      slug: string;
-      title: string;
-      branch: string;
-      totalCompletions: number;
-      usersStarted: number;
-    }> = {};
+    const skillStats: Record<string, SkillAnalyticsWithUsers> = {};
 
     usersSnapshot.forEach((doc) => {
       const data = doc.data();
@@ -487,10 +494,21 @@ export async function getSkillsAnalytics(): Promise<{
             branch: progress.branch || 'General',
             totalCompletions: 0,
             usersStarted: 0,
+            users: [],
           };
         }
         skillStats[slug].usersStarted += 1;
         skillStats[slug].totalCompletions += (progress.completedLevels?.length || 0);
+        
+        // Add user info
+        skillStats[slug].users.push({
+          userId: data.userId || doc.id,
+          displayName: data.displayName || 'Unknown User',
+          email: data.email || '',
+          completedLevels: progress.completedLevels || [],
+          totalLevels: progress.totalLevels || 30,
+          lastActiveDate: progress.lastActiveDate || '',
+        });
       });
     });
 

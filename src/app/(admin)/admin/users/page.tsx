@@ -46,6 +46,10 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedUser, setSelectedUser] = useState<UserAnalytics | null>(null);
+  const [statDialog, setStatDialog] = useState<{
+    type: 'users' | 'active' | 'topics' | 'materials' | 'levels' | null;
+    open: boolean;
+  }>({ type: null, open: false });
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -87,6 +91,63 @@ export default function AdminUsersPage() {
   // Calculate total unique topics across all users
   const totalUniqueTopics = users.reduce((sum, u) => sum + getUniqueTopicsCount(u), 0);
 
+  // Get all topics with user info
+  const getAllTopicsWithUsers = () => {
+    const topicsMap: Record<string, { topic: string; users: { name: string; email: string; timestamp: string }[] }> = {};
+    users.forEach(user => {
+      (user.topicsHistory || []).forEach(t => {
+        const key = t.topic.toLowerCase().trim();
+        if (!topicsMap[key]) {
+          topicsMap[key] = { topic: t.topic, users: [] };
+        }
+        topicsMap[key].users.push({
+          name: user.displayName || 'Unknown',
+          email: user.email,
+          timestamp: t.timestamp,
+        });
+      });
+    });
+    return Object.values(topicsMap).sort((a, b) => b.users.length - a.users.length);
+  };
+
+  // Get all materials with user info
+  const getAllMaterialsWithUsers = () => {
+    const materialsMap: Record<string, { title: string; users: { name: string; email: string; timestamp: string }[] }> = {};
+    users.forEach(user => {
+      (user.materialsHistory || []).forEach(m => {
+        const key = m.subjectId;
+        if (!materialsMap[key]) {
+          materialsMap[key] = { title: m.subjectTitle, users: [] };
+        }
+        materialsMap[key].users.push({
+          name: user.displayName || 'Unknown',
+          email: user.email,
+          timestamp: m.timestamp,
+        });
+      });
+    });
+    return Object.values(materialsMap).sort((a, b) => b.users.length - a.users.length);
+  };
+
+  // Get all skill levels with user info
+  const getAllLevelsWithUsers = () => {
+    const levelsData: { skillTitle: string; userName: string; email: string; completedLevels: number[]; totalLevels: number }[] = [];
+    users.forEach(user => {
+      Object.values(user.skillsProgress || {}).forEach((progress: any) => {
+        if (progress.completedLevels?.length > 0) {
+          levelsData.push({
+            skillTitle: progress.skillTitle || progress.skillSlug,
+            userName: user.displayName || 'Unknown',
+            email: user.email,
+            completedLevels: progress.completedLevels,
+            totalLevels: progress.totalLevels || 30,
+          });
+        }
+      });
+    });
+    return levelsData;
+  };
+
   const formatDate = (dateStr: string) => {
     if (!dateStr) return "N/A";
     return new Date(dateStr).toLocaleDateString();
@@ -115,11 +176,14 @@ export default function AdminUsersPage() {
 
       {/* Stats Summary */}
       <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-        <Card>
+        <Card 
+          className="cursor-pointer hover:shadow-md hover:border-primary/50 transition-all"
+          onClick={() => setStatDialog({ type: 'users', open: true })}
+        >
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-blue-100 dark:bg-blue-950/30 rounded-lg">
-                <Users className="h-6 w-6 text-blue-600" />
+              <div className="p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
+                <Users className="h-6 w-6 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{users.length}</p>
@@ -128,11 +192,14 @@ export default function AdminUsersPage() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card 
+          className="cursor-pointer hover:shadow-md hover:border-primary/50 transition-all"
+          onClick={() => setStatDialog({ type: 'active', open: true })}
+        >
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-emerald-100 dark:bg-emerald-950/30 rounded-lg">
-                <TrendingUp className="h-6 w-6 text-emerald-600" />
+              <div className="p-3 bg-emerald-50 dark:bg-emerald-950/20 rounded-lg">
+                <TrendingUp className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
                 <p className="text-2xl font-bold">
@@ -143,11 +210,14 @@ export default function AdminUsersPage() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card 
+          className="cursor-pointer hover:shadow-md hover:border-primary/50 transition-all"
+          onClick={() => setStatDialog({ type: 'topics', open: true })}
+        >
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-purple-100 dark:bg-purple-950/30 rounded-lg">
-                <BookOpen className="h-6 w-6 text-purple-600" />
+              <div className="p-3 bg-purple-50 dark:bg-purple-950/20 rounded-lg">
+                <BookOpen className="h-6 w-6 text-purple-600 dark:text-purple-400" />
               </div>
               <div>
                 <p className="text-2xl font-bold">
@@ -158,11 +228,14 @@ export default function AdminUsersPage() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card 
+          className="cursor-pointer hover:shadow-md hover:border-primary/50 transition-all"
+          onClick={() => setStatDialog({ type: 'materials', open: true })}
+        >
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-orange-100 dark:bg-orange-950/30 rounded-lg">
-                <FileText className="h-6 w-6 text-orange-600" />
+              <div className="p-3 bg-orange-50 dark:bg-orange-950/20 rounded-lg">
+                <FileText className="h-6 w-6 text-orange-600 dark:text-orange-400" />
               </div>
               <div>
                 <p className="text-2xl font-bold">
@@ -173,17 +246,20 @@ export default function AdminUsersPage() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card 
+          className="cursor-pointer hover:shadow-md hover:border-primary/50 transition-all"
+          onClick={() => setStatDialog({ type: 'levels', open: true })}
+        >
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-pink-100 dark:bg-pink-950/30 rounded-lg">
-                <Target className="h-6 w-6 text-pink-600" />
+              <div className="p-3 bg-pink-50 dark:bg-pink-950/20 rounded-lg">
+                <Target className="h-6 w-6 text-pink-600 dark:text-pink-400" />
               </div>
               <div>
                 <p className="text-2xl font-bold">
                   {users.reduce((sum, u) => sum + (u.totalSkillLevelsCompleted || 0), 0)}
                 </p>
-                <p className="text-sm text-muted-foreground">Skills Completed</p>
+                <p className="text-sm text-muted-foreground">Levels Completed</p>
               </div>
             </div>
           </CardContent>
@@ -235,7 +311,7 @@ export default function AdminUsersPage() {
                     <TableHead className="font-semibold">User</TableHead>
                     <TableHead className="font-semibold text-center">Topics</TableHead>
                     <TableHead className="font-semibold text-center">Materials</TableHead>
-                    <TableHead className="font-semibold text-center">Skills</TableHead>
+                    <TableHead className="font-semibold text-center">Levels</TableHead>
                     <TableHead className="font-semibold">Last Active</TableHead>
                     <TableHead className="font-semibold text-right">Actions</TableHead>
                   </TableRow>
@@ -330,17 +406,50 @@ export default function AdminUsersPage() {
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-3 gap-4">
-                  <div className="text-center p-4 rounded-lg bg-blue-50 dark:bg-blue-950/30">
+                  <div 
+                    className={`text-center p-4 rounded-lg bg-blue-50 dark:bg-blue-950/30 transition-all ${
+                      selectedUser.topicsHistory && selectedUser.topicsHistory.length > 0 
+                        ? 'cursor-pointer hover:ring-2 hover:ring-blue-400' 
+                        : ''
+                    }`}
+                    onClick={() => {
+                      if (selectedUser.topicsHistory && selectedUser.topicsHistory.length > 0) {
+                        document.getElementById('user-topics-section')?.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }}
+                  >
                     <BookOpen className="h-5 w-5 text-blue-600 mx-auto mb-2" />
                     <p className="text-2xl font-bold">{getUniqueTopicsCount(selectedUser)}</p>
                     <p className="text-xs text-muted-foreground">Topics Learned</p>
                   </div>
-                  <div className="text-center p-4 rounded-lg bg-emerald-50 dark:bg-emerald-950/30">
+                  <div 
+                    className={`text-center p-4 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 transition-all ${
+                      selectedUser.materialsHistory && selectedUser.materialsHistory.length > 0 
+                        ? 'cursor-pointer hover:ring-2 hover:ring-emerald-400' 
+                        : ''
+                    }`}
+                    onClick={() => {
+                      if (selectedUser.materialsHistory && selectedUser.materialsHistory.length > 0) {
+                        document.getElementById('user-materials-section')?.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }}
+                  >
                     <FileText className="h-5 w-5 text-emerald-600 mx-auto mb-2" />
                     <p className="text-2xl font-bold">{selectedUser.totalMaterialsAccessed || 0}</p>
                     <p className="text-xs text-muted-foreground">Materials</p>
                   </div>
-                  <div className="text-center p-4 rounded-lg bg-purple-50 dark:bg-purple-950/30">
+                  <div 
+                    className={`text-center p-4 rounded-lg bg-purple-50 dark:bg-purple-950/30 transition-all ${
+                      selectedUser.skillsProgress && Object.keys(selectedUser.skillsProgress).length > 0 
+                        ? 'cursor-pointer hover:ring-2 hover:ring-purple-400' 
+                        : ''
+                    }`}
+                    onClick={() => {
+                      if (selectedUser.skillsProgress && Object.keys(selectedUser.skillsProgress).length > 0) {
+                        document.getElementById('user-skills-section')?.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }}
+                  >
                     <Target className="h-5 w-5 text-purple-600 mx-auto mb-2" />
                     <p className="text-2xl font-bold">{selectedUser.totalSkillLevelsCompleted || 0}</p>
                     <p className="text-xs text-muted-foreground">Skills Levels</p>
@@ -349,7 +458,7 @@ export default function AdminUsersPage() {
 
                 {/* Skills Progress */}
                 {selectedUser.skillsProgress && Object.keys(selectedUser.skillsProgress).length > 0 && (
-                  <div>
+                  <div id="user-skills-section">
                     <h4 className="font-semibold mb-3 flex items-center gap-2">
                       <Target className="h-4 w-4 text-purple-600" />
                       Skills Progress
@@ -392,7 +501,7 @@ export default function AdminUsersPage() {
 
                 {/* Recent Topics */}
                 {selectedUser.topicsHistory && selectedUser.topicsHistory.length > 0 && (
-                  <div>
+                  <div id="user-topics-section">
                     <h4 className="font-semibold mb-3">Recent Topics Searched</h4>
                     <div className="space-y-2">
                       {/* Show unique topics only */}
@@ -412,7 +521,7 @@ export default function AdminUsersPage() {
 
                 {/* Recent Materials */}
                 {selectedUser.materialsHistory && selectedUser.materialsHistory.length > 0 && (
-                  <div>
+                  <div id="user-materials-section">
                     <h4 className="font-semibold mb-3">Recent Materials Accessed</h4>
                     <div className="space-y-2">
                       {selectedUser.materialsHistory.slice(0, 10).map((entry, i) => (
@@ -432,6 +541,160 @@ export default function AdminUsersPage() {
               </div>
             </ScrollArea>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Stats Detail Dialog */}
+      <Dialog open={statDialog.open} onOpenChange={(open) => setStatDialog({ ...statDialog, open })}>
+        <DialogContent className="max-w-2xl max-h-[80vh]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              {statDialog.type === 'users' && <><Users className="h-5 w-5 text-blue-600" /> All Users</>}
+              {statDialog.type === 'active' && <><TrendingUp className="h-5 w-5 text-emerald-600" /> Active Today</>}
+              {statDialog.type === 'topics' && <><BookOpen className="h-5 w-5 text-purple-600" /> Topics Searched</>}
+              {statDialog.type === 'materials' && <><FileText className="h-5 w-5 text-orange-600" /> Materials Accessed</>}
+              {statDialog.type === 'levels' && <><Target className="h-5 w-5 text-pink-600" /> Levels Completed</>}
+            </DialogTitle>
+            <DialogDescription>
+              {statDialog.type === 'users' && `${users.length} registered users`}
+              {statDialog.type === 'active' && `${users.filter(u => isActiveToday(u.lastActiveDate)).length} users active today`}
+              {statDialog.type === 'topics' && `${totalUniqueTopics} unique topics searched`}
+              {statDialog.type === 'materials' && `${users.reduce((sum, u) => sum + (u.totalMaterialsAccessed || 0), 0)} materials accessed`}
+              {statDialog.type === 'levels' && `${users.reduce((sum, u) => sum + (u.totalSkillLevelsCompleted || 0), 0)} skill levels completed`}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <ScrollArea className="max-h-[60vh] pr-4">
+            {/* All Users */}
+            {statDialog.type === 'users' && (
+              <div className="space-y-2">
+                {users.map((user) => (
+                  <div key={user.userId} className="flex items-center justify-between p-3 rounded-lg border bg-card">
+                    <div>
+                      <p className="font-medium">{user.displayName || 'Unknown'}</p>
+                      <p className="text-sm text-muted-foreground">{user.email}</p>
+                    </div>
+                    <div className="text-right text-sm">
+                      <p className="text-muted-foreground">Joined {formatDate(user.joinedDate)}</p>
+                      {isActiveToday(user.lastActiveDate) && (
+                        <Badge variant="secondary" className="bg-emerald-100 text-emerald-700">Active</Badge>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Active Today */}
+            {statDialog.type === 'active' && (
+              <div className="space-y-2">
+                {users.filter(u => isActiveToday(u.lastActiveDate)).length === 0 ? (
+                  <p className="text-center text-muted-foreground py-8">No users active today</p>
+                ) : (
+                  users.filter(u => isActiveToday(u.lastActiveDate)).map((user) => (
+                    <div key={user.userId} className="flex items-center justify-between p-3 rounded-lg border bg-card">
+                      <div className="flex items-center gap-3">
+                        <span className="w-2 h-2 bg-emerald-500 rounded-full"></span>
+                        <div>
+                          <p className="font-medium">{user.displayName || 'Unknown'}</p>
+                          <p className="text-sm text-muted-foreground">{user.email}</p>
+                        </div>
+                      </div>
+                      <div className="text-right text-sm">
+                        <Badge variant="secondary">{getUniqueTopicsCount(user)} topics</Badge>
+                        <Badge variant="secondary" className="ml-2">{user.totalSkillLevelsCompleted || 0} levels</Badge>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+
+            {/* Topics */}
+            {statDialog.type === 'topics' && (
+              <div className="space-y-2">
+                {getAllTopicsWithUsers().length === 0 ? (
+                  <p className="text-center text-muted-foreground py-8">No topics searched yet</p>
+                ) : (
+                  getAllTopicsWithUsers().map((topic, i) => (
+                    <div key={i} className="p-3 rounded-lg border bg-card">
+                      <div className="flex items-start justify-between mb-2">
+                        <p className="font-medium flex-1">{topic.topic}</p>
+                        <Badge variant="secondary">{topic.users.length} search(es)</Badge>
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        {topic.users.slice(0, 5).map((u, j) => (
+                          <Badge key={j} variant="outline" className="text-xs">
+                            {u.name}
+                          </Badge>
+                        ))}
+                        {topic.users.length > 5 && (
+                          <Badge variant="outline" className="text-xs">+{topic.users.length - 5} more</Badge>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+
+            {/* Materials */}
+            {statDialog.type === 'materials' && (
+              <div className="space-y-2">
+                {getAllMaterialsWithUsers().length === 0 ? (
+                  <p className="text-center text-muted-foreground py-8">No materials accessed yet</p>
+                ) : (
+                  getAllMaterialsWithUsers().map((material, i) => (
+                    <div key={i} className="p-3 rounded-lg border bg-card">
+                      <div className="flex items-start justify-between mb-2">
+                        <p className="font-medium flex-1">{material.title}</p>
+                        <Badge variant="secondary">{material.users.length} access(es)</Badge>
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        {material.users.slice(0, 5).map((u, j) => (
+                          <Badge key={j} variant="outline" className="text-xs">
+                            {u.name}
+                          </Badge>
+                        ))}
+                        {material.users.length > 5 && (
+                          <Badge variant="outline" className="text-xs">+{material.users.length - 5} more</Badge>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+
+            {/* Levels */}
+            {statDialog.type === 'levels' && (
+              <div className="space-y-2">
+                {getAllLevelsWithUsers().length === 0 ? (
+                  <p className="text-center text-muted-foreground py-8">No levels completed yet</p>
+                ) : (
+                  getAllLevelsWithUsers().map((item, i) => (
+                    <div key={i} className="p-3 rounded-lg border bg-card">
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <p className="font-medium">{item.skillTitle}</p>
+                          <p className="text-sm text-muted-foreground">{item.userName} ({item.email})</p>
+                        </div>
+                        <Badge variant="secondary">{item.completedLevels.length}/{item.totalLevels} levels</Badge>
+                      </div>
+                      <Progress value={(item.completedLevels.length / item.totalLevels) * 100} className="h-2 mb-2" />
+                      <div className="flex flex-wrap gap-1">
+                        {item.completedLevels.map((level) => (
+                          <Badge key={level} variant="outline" className="text-xs">
+                            Level {level}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </ScrollArea>
         </DialogContent>
       </Dialog>
     </div>

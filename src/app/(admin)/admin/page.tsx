@@ -28,6 +28,14 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
   Plus,
   Pencil,
   Trash2,
@@ -49,6 +57,10 @@ export default function AdminDashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [deleteTarget, setDeleteTarget] = useState<Subject | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [statDialog, setStatDialog] = useState<{
+    type: 'subjects' | 'units' | 'branches' | null;
+    open: boolean;
+  }>({ type: null, open: false });
 
   const fetchSubjects = async () => {
     try {
@@ -139,10 +151,13 @@ export default function AdminDashboard() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card>
+        <Card 
+          className="cursor-pointer hover:shadow-md hover:border-primary/50 transition-all"
+          onClick={() => setStatDialog({ type: 'subjects', open: true })}
+        >
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-blue-100 dark:bg-blue-950/30 rounded-lg">
+              <div className="p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
                 <BookOpen className="h-6 w-6 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
@@ -152,10 +167,13 @@ export default function AdminDashboard() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card 
+          className="cursor-pointer hover:shadow-md hover:border-primary/50 transition-all"
+          onClick={() => setStatDialog({ type: 'units', open: true })}
+        >
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-emerald-100 dark:bg-emerald-950/30 rounded-lg">
+              <div className="p-3 bg-emerald-50 dark:bg-emerald-950/20 rounded-lg">
                 <FileText className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
@@ -165,10 +183,13 @@ export default function AdminDashboard() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card 
+          className="cursor-pointer hover:shadow-md hover:border-primary/50 transition-all"
+          onClick={() => setStatDialog({ type: 'branches', open: true })}
+        >
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-purple-100 dark:bg-purple-950/30 rounded-lg">
+              <div className="p-3 bg-purple-50 dark:bg-purple-950/20 rounded-lg">
                 <FolderOpen className="h-6 w-6 text-purple-600 dark:text-purple-400" />
               </div>
               <div>
@@ -308,6 +329,116 @@ export default function AdminDashboard() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Stats Detail Dialog */}
+      <Dialog open={statDialog.open} onOpenChange={(open) => setStatDialog({ ...statDialog, open })}>
+        <DialogContent className="max-w-2xl max-h-[80vh]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              {statDialog.type === 'subjects' && <><BookOpen className="h-5 w-5 text-blue-600" /> All Subjects</>}
+              {statDialog.type === 'units' && <><FileText className="h-5 w-5 text-emerald-600" /> All Units</>}
+              {statDialog.type === 'branches' && <><FolderOpen className="h-5 w-5 text-purple-600" /> Active Branches</>}
+            </DialogTitle>
+            <DialogDescription>
+              {statDialog.type === 'subjects' && `${subjects.length} subjects in the system`}
+              {statDialog.type === 'units' && `${totalUnits} units across all subjects`}
+              {statDialog.type === 'branches' && `${new Set(subjects.flatMap((s) => s.branch)).size} branches with materials`}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <ScrollArea className="max-h-[60vh] pr-4">
+            {/* Subjects List */}
+            {statDialog.type === 'subjects' && (
+              <div className="space-y-2">
+                {subjects.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-8">No subjects added yet</p>
+                ) : (
+                  subjects.map((subject) => (
+                    <div key={subject.id} className="flex items-center justify-between p-3 rounded-lg border bg-card">
+                      <div>
+                        <p className="font-medium">{subject.title}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant="outline" className="text-xs">{formatYear(subject.year)}</Badge>
+                          <span className="text-xs text-muted-foreground">{subject.units.length} units</span>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        {subject.branch.map((b) => (
+                          <Badge key={b} variant="secondary" className="text-xs">{b}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+
+            {/* Units List */}
+            {statDialog.type === 'units' && (
+              <div className="space-y-3">
+                {subjects.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-8">No units added yet</p>
+                ) : (
+                  subjects.map((subject) => (
+                    <div key={subject.id} className="p-3 rounded-lg border bg-card">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="font-medium">{subject.title}</p>
+                        <Badge variant="secondary">{subject.units.length} units</Badge>
+                      </div>
+                      <div className="space-y-1 ml-4">
+                        {subject.units.map((unit) => (
+                          <div key={unit.unit_number} className="flex items-center justify-between text-sm p-2 rounded bg-muted/50">
+                            <span>Unit {unit.unit_number}: {unit.unit_title}</span>
+                            {unit.drive_link && (
+                              <Badge variant="outline" className="text-xs">PDF Linked</Badge>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+
+            {/* Branches List */}
+            {statDialog.type === 'branches' && (
+              <div className="space-y-2">
+                {(() => {
+                  const branchData: Record<string, Subject[]> = {};
+                  subjects.forEach(s => {
+                    s.branch.forEach(b => {
+                      if (!branchData[b]) branchData[b] = [];
+                      branchData[b].push(s);
+                    });
+                  });
+                  const branchEntries = Object.entries(branchData).sort((a, b) => b[1].length - a[1].length);
+                  
+                  if (branchEntries.length === 0) {
+                    return <p className="text-center text-muted-foreground py-8">No branches with materials yet</p>;
+                  }
+                  
+                  return branchEntries.map(([branch, branchSubjects]) => (
+                    <div key={branch} className="p-3 rounded-lg border bg-card">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="font-medium">{branch}</p>
+                        <Badge variant="secondary">{branchSubjects.length} subjects</Badge>
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        {branchSubjects.map((s) => (
+                          <Badge key={s.id} variant="outline" className="text-xs">
+                            {s.title}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  ));
+                })()}
+              </div>
+            )}
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
