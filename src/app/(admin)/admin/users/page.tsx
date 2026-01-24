@@ -163,31 +163,31 @@ export default function AdminUsersPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">User Management</h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">User Management</h1>
+          <p className="text-sm sm:text-base text-muted-foreground mt-1">
             View all registered users and their learning analytics
           </p>
         </div>
-        <Button variant="outline" onClick={fetchUsers} disabled={loading}>
+        <Button variant="outline" onClick={fetchUsers} disabled={loading} className="w-full sm:w-auto">
           <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
           Refresh
         </Button>
       </div>
 
       {/* Stats Summary */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
         <Card 
           className="cursor-pointer hover:shadow-md hover:border-primary/50 transition-all"
           onClick={() => setStatDialog({ type: 'users', open: true })}
         >
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
-                <Users className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+          <CardContent className="p-4 sm:pt-6">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="p-2 sm:p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
+                <Users className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{users.length}</p>
-                <p className="text-sm text-muted-foreground">Total Users</p>
+                <p className="text-xl sm:text-2xl font-bold">{users.length}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Total Users</p>
               </div>
             </div>
           </CardContent>
@@ -196,16 +196,16 @@ export default function AdminUsersPage() {
           className="cursor-pointer hover:shadow-md hover:border-primary/50 transition-all"
           onClick={() => setStatDialog({ type: 'active', open: true })}
         >
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-emerald-50 dark:bg-emerald-950/20 rounded-lg">
-                <TrendingUp className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+          <CardContent className="p-4 sm:pt-6">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="p-2 sm:p-3 bg-emerald-50 dark:bg-emerald-950/20 rounded-lg">
+                <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold">
+                <p className="text-xl sm:text-2xl font-bold">
                   {users.filter((u) => isActiveToday(u.lastActiveDate)).length}
                 </p>
-                <p className="text-sm text-muted-foreground">Active Today</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Active Today</p>
               </div>
             </div>
           </CardContent>
@@ -214,16 +214,16 @@ export default function AdminUsersPage() {
           className="cursor-pointer hover:shadow-md hover:border-primary/50 transition-all"
           onClick={() => setStatDialog({ type: 'topics', open: true })}
         >
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-purple-50 dark:bg-purple-950/20 rounded-lg">
-                <BookOpen className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+          <CardContent className="p-4 sm:pt-6">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="p-2 sm:p-3 bg-purple-50 dark:bg-purple-950/20 rounded-lg">
+                <BookOpen className="h-5 w-5 sm:h-6 sm:w-6 text-purple-600 dark:text-purple-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold">
+                <p className="text-xl sm:text-2xl font-bold">
                   {totalUniqueTopics}
                 </p>
-                <p className="text-sm text-muted-foreground">Total Topics</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Total Topics</p>
               </div>
             </div>
           </CardContent>
@@ -232,34 +232,34 @@ export default function AdminUsersPage() {
           className="cursor-pointer hover:shadow-md hover:border-primary/50 transition-all"
           onClick={() => setStatDialog({ type: 'materials', open: true })}
         >
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-orange-50 dark:bg-orange-950/20 rounded-lg">
-                <FileText className="h-6 w-6 text-orange-600 dark:text-orange-400" />
+          <CardContent className="p-4 sm:pt-6">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="p-2 sm:p-3 bg-orange-50 dark:bg-orange-950/20 rounded-lg">
+                <FileText className="h-5 w-5 sm:h-6 sm:w-6 text-orange-600 dark:text-orange-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold">
+                <p className="text-xl sm:text-2xl font-bold">
                   {users.reduce((sum, u) => sum + (u.totalMaterialsAccessed || 0), 0)}
                 </p>
-                <p className="text-sm text-muted-foreground">Materials Accessed</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Materials</p>
               </div>
             </div>
           </CardContent>
         </Card>
         <Card 
-          className="cursor-pointer hover:shadow-md hover:border-primary/50 transition-all"
+          className="col-span-2 sm:col-span-1 cursor-pointer hover:shadow-md hover:border-primary/50 transition-all"
           onClick={() => setStatDialog({ type: 'levels', open: true })}
         >
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-pink-50 dark:bg-pink-950/20 rounded-lg">
-                <Target className="h-6 w-6 text-pink-600 dark:text-pink-400" />
+          <CardContent className="p-4 sm:pt-6">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="p-2 sm:p-3 bg-pink-50 dark:bg-pink-950/20 rounded-lg">
+                <Target className="h-5 w-5 sm:h-6 sm:w-6 text-pink-600 dark:text-pink-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold">
+                <p className="text-xl sm:text-2xl font-bold">
                   {users.reduce((sum, u) => sum + (u.totalSkillLevelsCompleted || 0), 0)}
                 </p>
-                <p className="text-sm text-muted-foreground">Levels Completed</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Levels Completed</p>
               </div>
             </div>
           </CardContent>
@@ -269,12 +269,12 @@ export default function AdminUsersPage() {
       {/* Users Table */}
       <Card>
         <CardHeader className="pb-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex flex-col gap-4">
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5" />
               All Users ({filteredUsers.length})
             </CardTitle>
-            <div className="relative w-full sm:w-[300px]">
+            <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search by name or email..."
@@ -304,64 +304,110 @@ export default function AdminUsersPage() {
               </p>
             </div>
           ) : (
-            <div className="rounded-md border overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted/50">
-                    <TableHead className="font-semibold">User</TableHead>
-                    <TableHead className="font-semibold text-center">Topics</TableHead>
-                    <TableHead className="font-semibold text-center">Materials</TableHead>
-                    <TableHead className="font-semibold text-center">Levels</TableHead>
-                    <TableHead className="font-semibold">Last Active</TableHead>
-                    <TableHead className="font-semibold text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredUsers.map((user) => (
-                    <TableRow key={user.userId} className="hover:bg-muted/30">
-                      <TableCell>
-                        <div>
-                          <p className="font-medium">{user.displayName || "Unknown"}</p>
-                          <p className="text-sm text-muted-foreground">{user.email}</p>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Badge variant="secondary">{getUniqueTopicsCount(user)}</Badge>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Badge variant="secondary">{user.totalMaterialsAccessed || 0}</Badge>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Badge variant="secondary" className="bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300">
-                          <Target className="h-3 w-3 mr-1" />
-                          {user.totalSkillLevelsCompleted || 0}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
+            <>
+              {/* Mobile Card View */}
+              <div className="sm:hidden space-y-3">
+                {filteredUsers.map((user) => (
+                  <div 
+                    key={user.userId} 
+                    className="p-4 rounded-lg border bg-card cursor-pointer hover:shadow-md transition-all"
+                    onClick={() => setSelectedUser(user)}
+                  >
+                    <div className="flex items-start justify-between gap-2 mb-3">
+                      <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
                           {isActiveToday(user.lastActiveDate) && (
-                            <span className="w-2 h-2 bg-emerald-500 rounded-full"></span>
+                            <span className="w-2 h-2 bg-emerald-500 rounded-full shrink-0"></span>
                           )}
-                          <span className={isActiveToday(user.lastActiveDate) ? "text-emerald-600 font-medium" : ""}>
-                            {formatDate(user.lastActiveDate)}
-                          </span>
+                          <p className="font-medium truncate">{user.displayName || "Unknown"}</p>
                         </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setSelectedUser(user)}
-                        >
-                          <Eye className="h-4 w-4 mr-1" />
-                          View
-                        </Button>
-                      </TableCell>
+                        <p className="text-sm text-muted-foreground truncate">{user.email}</p>
+                      </div>
+                      <Button variant="ghost" size="sm" className="shrink-0">
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <Badge variant="secondary" className="text-xs">
+                        <BookOpen className="h-3 w-3 mr-1" />
+                        {getUniqueTopicsCount(user)} topics
+                      </Badge>
+                      <Badge variant="secondary" className="text-xs">
+                        <FileText className="h-3 w-3 mr-1" />
+                        {user.totalMaterialsAccessed || 0} materials
+                      </Badge>
+                      <Badge variant="secondary" className="text-xs bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300">
+                        <Target className="h-3 w-3 mr-1" />
+                        {user.totalSkillLevelsCompleted || 0} levels
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Last active: {formatDate(user.lastActiveDate)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop Table View */}
+              <div className="hidden sm:block rounded-md border overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-muted/50">
+                      <TableHead className="font-semibold">User</TableHead>
+                      <TableHead className="font-semibold text-center">Topics</TableHead>
+                      <TableHead className="font-semibold text-center">Materials</TableHead>
+                      <TableHead className="font-semibold text-center">Levels</TableHead>
+                      <TableHead className="font-semibold">Last Active</TableHead>
+                      <TableHead className="font-semibold text-right">Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredUsers.map((user) => (
+                      <TableRow key={user.userId} className="hover:bg-muted/30">
+                        <TableCell>
+                          <div>
+                            <p className="font-medium">{user.displayName || "Unknown"}</p>
+                            <p className="text-sm text-muted-foreground">{user.email}</p>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <Badge variant="secondary">{getUniqueTopicsCount(user)}</Badge>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <Badge variant="secondary">{user.totalMaterialsAccessed || 0}</Badge>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <Badge variant="secondary" className="bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300">
+                            <Target className="h-3 w-3 mr-1" />
+                            {user.totalSkillLevelsCompleted || 0}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            {isActiveToday(user.lastActiveDate) && (
+                              <span className="w-2 h-2 bg-emerald-500 rounded-full"></span>
+                            )}
+                            <span className={isActiveToday(user.lastActiveDate) ? "text-emerald-600 font-medium" : ""}>
+                              {formatDate(user.lastActiveDate)}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setSelectedUser(user)}
+                          >
+                            <Eye className="h-4 w-4 mr-1" />
+                            View
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>

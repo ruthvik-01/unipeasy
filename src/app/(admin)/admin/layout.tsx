@@ -6,8 +6,15 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Lock, Shield, LogOut, BookOpen, BarChart3, Users } from "lucide-react";
+import { Lock, Shield, LogOut, BookOpen, BarChart3, Users, Menu, X } from "lucide-react";
 import Link from "next/link";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "admin123";
 const AUTH_KEY = "admin_authenticated";
@@ -21,6 +28,7 @@ export default function AdminLayout({
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -38,6 +46,11 @@ export default function AdminLayout({
     }
     setIsLoading(false);
   }, []);
+
+  // Close mobile nav on route change
+  useEffect(() => {
+    setMobileNavOpen(false);
+  }, [pathname]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -116,14 +129,57 @@ export default function AdminLayout({
       <div className="sticky top-0 z-50 bg-white dark:bg-card border-b border-border shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-14">
-            <div className="flex items-center gap-6">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-100 dark:bg-blue-950/30 rounded-lg">
-                  <Shield className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            <div className="flex items-center gap-2 sm:gap-6">
+              {/* Mobile Menu Button */}
+              <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" className="sm:hidden">
+                    <Menu className="h-5 w-5" />
+                    <span className="sr-only">Open menu</span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-64">
+                  <SheetHeader>
+                    <SheetTitle className="flex items-center gap-2">
+                      <Shield className="h-5 w-5 text-blue-600" />
+                      Admin Menu
+                    </SheetTitle>
+                  </SheetHeader>
+                  <nav className="flex flex-col gap-2 mt-6">
+                    {navItems.map((item) => (
+                      <Link key={item.href} href={item.href} onClick={() => setMobileNavOpen(false)}>
+                        <Button
+                          variant={pathname === item.href ? "secondary" : "ghost"}
+                          className="w-full justify-start gap-2"
+                        >
+                          <item.icon className="h-4 w-4" />
+                          {item.label}
+                        </Button>
+                      </Link>
+                    ))}
+                    <hr className="my-4" />
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+                      onClick={() => {
+                        handleLogout();
+                        setMobileNavOpen(false);
+                      }}
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Logout
+                    </Button>
+                  </nav>
+                </SheetContent>
+              </Sheet>
+
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="p-1.5 sm:p-2 bg-blue-100 dark:bg-blue-950/30 rounded-lg">
+                  <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 dark:text-blue-400" />
                 </div>
-                <span className="font-semibold text-foreground">Admin Dashboard</span>
+                <span className="font-semibold text-foreground text-sm sm:text-base">Admin</span>
               </div>
-              {/* Nav Links */}
+              {/* Desktop Nav Links */}
               <nav className="hidden sm:flex items-center gap-1">
                 {navItems.map((item) => (
                   <Link key={item.href} href={item.href}>
@@ -139,11 +195,12 @@ export default function AdminLayout({
                 ))}
               </nav>
             </div>
+            {/* Desktop Logout */}
             <Button
               variant="ghost"
               size="sm"
               onClick={handleLogout}
-              className="text-muted-foreground hover:text-destructive"
+              className="hidden sm:flex text-muted-foreground hover:text-destructive"
             >
               <LogOut className="h-4 w-4 mr-2" />
               Logout
@@ -153,7 +210,7 @@ export default function AdminLayout({
       </div>
 
       {/* Admin Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {children}
       </div>
     </div>

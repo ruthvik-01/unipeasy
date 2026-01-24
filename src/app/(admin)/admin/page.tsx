@@ -136,13 +136,13 @@ export default function AdminDashboard() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Materials Manager</h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Materials Manager</h1>
+          <p className="text-sm sm:text-base text-muted-foreground mt-1">
             Manage study materials for JNTUK students
           </p>
         </div>
         <Link href="/admin/materials">
-          <Button className="bg-blue-600 hover:bg-blue-700">
+          <Button className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700">
             <Plus className="h-4 w-4 mr-2" />
             Add New Subject
           </Button>
@@ -206,22 +206,22 @@ export default function AdminDashboard() {
       {/* Subjects Table */}
       <Card>
         <CardHeader className="pb-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex flex-col gap-4">
             <CardTitle className="flex items-center gap-2">
               <BookOpen className="h-5 w-5" />
               All Subjects
             </CardTitle>
-            <div className="flex items-center gap-2">
-              <div className="relative">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+              <div className="relative flex-1 sm:flex-none">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search subjects..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 w-[250px]"
+                  className="pl-9 w-full sm:w-[250px]"
                 />
               </div>
-              <Button variant="outline" size="icon" onClick={fetchSubjects}>
+              <Button variant="outline" size="icon" onClick={fetchSubjects} className="shrink-0 self-end sm:self-auto">
                 <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
               </Button>
             </div>
@@ -246,56 +246,96 @@ export default function AdminDashboard() {
               </p>
             </div>
           ) : (
-            <div className="rounded-md border overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted/50">
-                    <TableHead className="font-semibold">Subject Title</TableHead>
-                    <TableHead className="font-semibold">Branches</TableHead>
-                    <TableHead className="font-semibold">Year</TableHead>
-                    <TableHead className="font-semibold text-center">Units</TableHead>
-                    <TableHead className="font-semibold text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredSubjects.map((subject) => (
-                    <TableRow key={subject.id} className="hover:bg-muted/30">
-                      <TableCell className="font-medium">{subject.title}</TableCell>
-                      <TableCell>
-                        <div className="flex flex-wrap gap-1">
-                          {subject.branch.map((b) => (
-                            <Badge key={b} variant="secondary" className="text-xs">
-                              {b}
-                            </Badge>
-                          ))}
-                        </div>
-                      </TableCell>
-                      <TableCell>{formatYear(subject.year)}</TableCell>
-                      <TableCell className="text-center">
-                        <Badge variant="outline">{subject.units.length}</Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <Link href={`/admin/materials/edit/${subject.id}`}>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                              <Pencil className="h-4 w-4 text-blue-600" />
-                            </Button>
-                          </Link>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={() => setDeleteTarget(subject)}
-                          >
-                            <Trash2 className="h-4 w-4 text-destructive" />
+            <>
+              {/* Mobile Card View */}
+              <div className="sm:hidden space-y-3">
+                {filteredSubjects.map((subject) => (
+                  <div key={subject.id} className="p-4 rounded-lg border bg-card">
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <h3 className="font-medium text-sm">{subject.title}</h3>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <Link href={`/admin/materials/edit/${subject.id}`}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <Pencil className="h-4 w-4 text-blue-600" />
                           </Button>
-                        </div>
-                      </TableCell>
+                        </Link>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => setDeleteTarget(subject)}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-1 mb-2">
+                      {subject.branch.map((b) => (
+                        <Badge key={b} variant="secondary" className="text-xs">
+                          {b}
+                        </Badge>
+                      ))}
+                    </div>
+                    <div className="flex items-center justify-between text-sm text-muted-foreground">
+                      <span>{formatYear(subject.year)}</span>
+                      <Badge variant="outline">{subject.units.length} units</Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop Table View */}
+              <div className="hidden sm:block rounded-md border overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-muted/50">
+                      <TableHead className="font-semibold">Subject Title</TableHead>
+                      <TableHead className="font-semibold">Branches</TableHead>
+                      <TableHead className="font-semibold">Year</TableHead>
+                      <TableHead className="font-semibold text-center">Units</TableHead>
+                      <TableHead className="font-semibold text-right">Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredSubjects.map((subject) => (
+                      <TableRow key={subject.id} className="hover:bg-muted/30">
+                        <TableCell className="font-medium">{subject.title}</TableCell>
+                        <TableCell>
+                          <div className="flex flex-wrap gap-1">
+                            {subject.branch.map((b) => (
+                              <Badge key={b} variant="secondary" className="text-xs">
+                                {b}
+                              </Badge>
+                            ))}
+                          </div>
+                        </TableCell>
+                        <TableCell>{formatYear(subject.year)}</TableCell>
+                        <TableCell className="text-center">
+                          <Badge variant="outline">{subject.units.length}</Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <Link href={`/admin/materials/edit/${subject.id}`}>
+                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <Pencil className="h-4 w-4 text-blue-600" />
+                              </Button>
+                            </Link>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => setDeleteTarget(subject)}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>

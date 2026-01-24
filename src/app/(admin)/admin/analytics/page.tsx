@@ -150,33 +150,35 @@ export default function AdminAnalyticsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Platform Analytics</h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Platform Analytics</h1>
+          <p className="text-sm sm:text-base text-muted-foreground mt-1">
             Overview of user engagement and content performance
           </p>
         </div>
-        <Button variant="outline" onClick={fetchAnalytics} disabled={loading}>
+        <Button variant="outline" onClick={fetchAnalytics} disabled={loading} className="w-full sm:w-auto">
           <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
           Refresh
         </Button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        {statCards.map((stat) => (
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+        {statCards.map((stat, index) => (
           <Card 
             key={stat.title}
-            className="cursor-pointer hover:shadow-md hover:border-primary/50 transition-all"
+            className={`cursor-pointer hover:shadow-md hover:border-primary/50 transition-all ${
+              index === statCards.length - 1 ? 'col-span-2 sm:col-span-1' : ''
+            }`}
             onClick={() => setStatDialog({ type: stat.dialogType, open: true })}
           >
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-4">
-                <div className={`p-3 rounded-lg ${stat.bg}`}>
-                  <stat.icon className={`h-6 w-6 ${stat.color}`} />
+            <CardContent className="p-4 sm:pt-6">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className={`p-2 sm:p-3 rounded-lg ${stat.bg}`}>
+                  <stat.icon className={`h-5 w-5 sm:h-6 sm:w-6 ${stat.color}`} />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                  <p className="text-sm text-muted-foreground">{stat.title}</p>
+                  <p className="text-xl sm:text-2xl font-bold text-foreground">{stat.value}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">{stat.title}</p>
                 </div>
               </div>
             </CardContent>
@@ -196,18 +198,18 @@ export default function AdminAnalyticsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 gap-8">
-            <div className="text-center p-6 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-950/20 dark:to-blue-900/10">
-              <p className="text-4xl font-bold text-blue-600 dark:text-blue-400">{analytics.activeUsersWeek}</p>
-              <p className="text-sm text-muted-foreground mt-1">Active Users This Week</p>
+          <div className="grid grid-cols-2 gap-4 sm:gap-8">
+            <div className="text-center p-4 sm:p-6 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-950/20 dark:to-blue-900/10">
+              <p className="text-2xl sm:text-4xl font-bold text-blue-600 dark:text-blue-400">{analytics.activeUsersWeek}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1">Active This Week</p>
             </div>
-            <div className="text-center p-6 rounded-lg bg-gradient-to-br from-emerald-50 to-emerald-100/50 dark:from-emerald-950/20 dark:to-emerald-900/10">
-              <p className="text-4xl font-bold text-emerald-600 dark:text-emerald-400">
+            <div className="text-center p-4 sm:p-6 rounded-lg bg-gradient-to-br from-emerald-50 to-emerald-100/50 dark:from-emerald-950/20 dark:to-emerald-900/10">
+              <p className="text-2xl sm:text-4xl font-bold text-emerald-600 dark:text-emerald-400">
                 {analytics.totalUsers > 0
                   ? Math.round((analytics.activeUsersWeek / analytics.totalUsers) * 100)
                   : 0}%
               </p>
-              <p className="text-sm text-muted-foreground mt-1">Weekly Retention Rate</p>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1">Weekly Retention</p>
             </div>
           </div>
         </CardContent>
@@ -336,15 +338,15 @@ export default function AdminAnalyticsPage() {
       </Dialog>
 
       {/* Tables */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Popular Topics */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Search className="h-5 w-5 text-purple-600" />
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <Search className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600" />
               Top Searched Topics
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-xs sm:text-sm">
               Most popular AI learning queries
             </CardDescription>
           </CardHeader>
@@ -354,28 +356,18 @@ export default function AdminAnalyticsPage() {
                 No data yet
               </p>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Topic</TableHead>
-                    <TableHead className="text-right">Searches</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {analytics.popularTopics.map((item, i) => (
-                    <TableRow key={i}>
-                      <TableCell className="font-medium">
-                        {item.topic.length > 40
-                          ? item.topic.substring(0, 40) + "..."
-                          : item.topic}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Badge variant="secondary">{item.count}</Badge>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <div className="space-y-2">
+                {analytics.popularTopics.map((item, i) => (
+                  <div key={i} className="flex items-center justify-between p-2 sm:p-3 rounded-lg border bg-card">
+                    <p className="font-medium text-sm truncate flex-1 mr-2">
+                      {item.topic.length > 30
+                        ? item.topic.substring(0, 30) + "..."
+                        : item.topic}
+                    </p>
+                    <Badge variant="secondary">{item.count}</Badge>
+                  </div>
+                ))}
+              </div>
             )}
           </CardContent>
         </Card>
@@ -383,11 +375,11 @@ export default function AdminAnalyticsPage() {
         {/* Popular Subjects */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Eye className="h-5 w-5 text-emerald-600" />
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <Eye className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-600" />
               Most Accessed Materials
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-xs sm:text-sm">
               Subjects with highest engagement
             </CardDescription>
           </CardHeader>
@@ -397,24 +389,14 @@ export default function AdminAnalyticsPage() {
                 No data yet
               </p>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Subject</TableHead>
-                    <TableHead className="text-right">Views</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {analytics.popularSubjects.map((item, i) => (
-                    <TableRow key={i}>
-                      <TableCell className="font-medium">{item.title}</TableCell>
-                      <TableCell className="text-right">
-                        <Badge variant="secondary">{item.count}</Badge>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <div className="space-y-2">
+                {analytics.popularSubjects.map((item, i) => (
+                  <div key={i} className="flex items-center justify-between p-2 sm:p-3 rounded-lg border bg-card">
+                    <p className="font-medium text-sm truncate flex-1 mr-2">{item.title}</p>
+                    <Badge variant="secondary">{item.count}</Badge>
+                  </div>
+                ))}
+              </div>
             )}
           </CardContent>
         </Card>
