@@ -408,6 +408,63 @@ export default function AdminUsersPage() {
                 </Table>
               </div>
             </>
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-muted/50">
+                    <TableHead className="font-semibold">User</TableHead>
+                    <TableHead className="font-semibold text-center">Topics</TableHead>
+                    <TableHead className="font-semibold text-center">Materials</TableHead>
+                    <TableHead className="font-semibold text-center">Levels</TableHead>
+                    <TableHead className="font-semibold">Last Active</TableHead>
+                    <TableHead className="font-semibold text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredUsers.map((user) => (
+                    <TableRow key={user.userId} className="hover:bg-muted/30">
+                      <TableCell>
+                        <div>
+                          <p className="font-medium">{user.displayName || "Unknown"}</p>
+                          <p className="text-sm text-muted-foreground">{user.email}</p>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Badge variant="secondary">{getUniqueTopicsCount(user)}</Badge>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Badge variant="secondary">{user.totalMaterialsAccessed || 0}</Badge>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Badge variant="secondary" className="bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300">
+                          <Target className="h-3 w-3 mr-1" />
+                          {user.totalSkillLevelsCompleted || 0}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          {isActiveToday(user.lastActiveDate) && (
+                            <span className="w-2 h-2 bg-emerald-500 rounded-full"></span>
+                          )}
+                          <span className={isActiveToday(user.lastActiveDate) ? "text-emerald-600 font-medium" : ""}>
+                            {formatDate(user.lastActiveDate)}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setSelectedUser(user)}
+                        >
+                          <Eye className="h-4 w-4 mr-1" />
+                          View
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>

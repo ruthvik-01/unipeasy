@@ -129,6 +129,7 @@ export default function AdminLayout({
       <div className="sticky top-0 z-50 bg-white dark:bg-card border-b border-border shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-14">
+<<<<<<< HEAD
             <div className="flex items-center gap-2 sm:gap-6">
               {/* Mobile Menu Button */}
               <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
@@ -180,6 +181,16 @@ export default function AdminLayout({
                 <span className="font-semibold text-foreground text-sm sm:text-base">Admin</span>
               </div>
               {/* Desktop Nav Links */}
+=======
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-100 dark:bg-blue-950/30 rounded-lg">
+                  <Shield className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                <span className="font-semibold text-foreground">Admin Dashboard</span>
+              </div>
+              {/* Nav Links */}
+>>>>>>> unipea/main
               <nav className="hidden sm:flex items-center gap-1">
                 {navItems.map((item) => (
                   <Link key={item.href} href={item.href}>
@@ -195,12 +206,19 @@ export default function AdminLayout({
                 ))}
               </nav>
             </div>
+<<<<<<< HEAD
             {/* Desktop Logout */}
+=======
+>>>>>>> unipea/main
             <Button
               variant="ghost"
               size="sm"
               onClick={handleLogout}
+<<<<<<< HEAD
               className="hidden sm:flex text-muted-foreground hover:text-destructive"
+=======
+              className="text-muted-foreground hover:text-destructive"
+>>>>>>> unipea/main
             >
               <LogOut className="h-4 w-4 mr-2" />
               Logout
@@ -210,7 +228,11 @@ export default function AdminLayout({
       </div>
 
       {/* Admin Content */}
+<<<<<<< HEAD
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+=======
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+>>>>>>> unipea/main
         {children}
       </div>
     </div>

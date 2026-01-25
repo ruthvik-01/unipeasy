@@ -199,6 +199,7 @@ export default function LoginPage() {
                       </FormItem>
                     )}
                   />
+<<<<<<< HEAD
                   <div className="flex justify-end">
                     <Button
                       type="button"
@@ -212,6 +213,8 @@ export default function LoginPage() {
                       Forgot password?
                     </Button>
                   </div>
+=======
+>>>>>>> unipea/main
                   <Button type="submit" className="w-full" disabled={loading}>
                     {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Log In
@@ -272,6 +275,7 @@ export default function LoginPage() {
       <p className="text-center text-sm text-muted-foreground mt-8">
         Your journey to academic excellence starts here.
       </p>
+<<<<<<< HEAD
 
       {/* Forgot Password Dialog */}
       <AlertDialog open={forgotPasswordOpen} onOpenChange={setForgotPasswordOpen}>
@@ -315,6 +319,8 @@ export default function LoginPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+=======
+>>>>>>> unipea/main
     </div>
   );
 }

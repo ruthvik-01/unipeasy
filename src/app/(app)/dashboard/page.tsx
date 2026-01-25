@@ -15,6 +15,7 @@ import {
   Zap,
   Trophy,
   Rocket,
+  FileText,
 } from "lucide-react";
 import {
   Card,
@@ -43,6 +44,12 @@ const quickAccessItems = [
     href: "/strategist",
     icon: Target,
     description: "Plan your success",
+  },
+  {
+    title: "My Documents",
+    href: "/my-documents",
+    icon: FileText,
+    description: "Store your PDFs & notes",
   },
   {
     title: "All Skills",
