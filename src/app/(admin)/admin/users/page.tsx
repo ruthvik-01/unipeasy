@@ -84,7 +84,7 @@ export default function AdminUsersPage() {
   // Calculate unique topics count from history
   const getUniqueTopicsCount = (user: UserAnalytics) => {
     if (!user.topicsHistory || user.topicsHistory.length === 0) return 0;
-    const uniqueTopics = new Set(user.topicsHistory.map(t => t.topic.toLowerCase().trim()));
+    const uniqueTopics = new Set(user.topicsHistory.filter(t => t.topic).map(t => t.topic.toLowerCase().trim()));
     return uniqueTopics.size;
   };
 
@@ -96,6 +96,7 @@ export default function AdminUsersPage() {
     const topicsMap: Record<string, { topic: string; users: { name: string; email: string; timestamp: string }[] }> = {};
     users.forEach(user => {
       (user.topicsHistory || []).forEach(t => {
+        if (!t.topic) return;
         const key = t.topic.toLowerCase().trim();
         if (!topicsMap[key]) {
           topicsMap[key] = { topic: t.topic, users: [] };
@@ -408,63 +409,6 @@ export default function AdminUsersPage() {
                 </Table>
               </div>
             </>
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted/50">
-                    <TableHead className="font-semibold">User</TableHead>
-                    <TableHead className="font-semibold text-center">Topics</TableHead>
-                    <TableHead className="font-semibold text-center">Materials</TableHead>
-                    <TableHead className="font-semibold text-center">Levels</TableHead>
-                    <TableHead className="font-semibold">Last Active</TableHead>
-                    <TableHead className="font-semibold text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredUsers.map((user) => (
-                    <TableRow key={user.userId} className="hover:bg-muted/30">
-                      <TableCell>
-                        <div>
-                          <p className="font-medium">{user.displayName || "Unknown"}</p>
-                          <p className="text-sm text-muted-foreground">{user.email}</p>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Badge variant="secondary">{getUniqueTopicsCount(user)}</Badge>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Badge variant="secondary">{user.totalMaterialsAccessed || 0}</Badge>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Badge variant="secondary" className="bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300">
-                          <Target className="h-3 w-3 mr-1" />
-                          {user.totalSkillLevelsCompleted || 0}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          {isActiveToday(user.lastActiveDate) && (
-                            <span className="w-2 h-2 bg-emerald-500 rounded-full"></span>
-                          )}
-                          <span className={isActiveToday(user.lastActiveDate) ? "text-emerald-600 font-medium" : ""}>
-                            {formatDate(user.lastActiveDate)}
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setSelectedUser(user)}
-                        >
-                          <Eye className="h-4 w-4 mr-1" />
-                          View
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
           )}
         </CardContent>
       </Card>
@@ -608,7 +552,7 @@ export default function AdminUsersPage() {
                     <h4 className="font-semibold mb-3">Recent Topics Searched</h4>
                     <div className="space-y-2">
                       {/* Show unique topics only */}
-                      {[...new Map(selectedUser.topicsHistory.map(e => [e.topic.toLowerCase(), e])).values()]
+                      {[...new Map(selectedUser.topicsHistory.filter(e => e.topic).map(e => [e.topic.toLowerCase(), e])).values()]
                         .slice(0, 10)
                         .map((entry, i) => (
                         <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 text-sm">

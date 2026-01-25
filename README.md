@@ -23,13 +23,11 @@ A learning app for JNTUK students. Simple explanations, study plans, and skill b
 
 ## Setup
 
-```bash
+bash
 npm install
-```
 
 Add `.env.local`:
 
-```
 NEXT_PUBLIC_ADMIN_PASSWORD=xxx
 NEXT_PUBLIC_FIREBASE_API_KEY=xxx
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=xxx
@@ -38,13 +36,11 @@ NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=xxx
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=xxx
 NEXT_PUBLIC_FIREBASE_APP_ID=xxx
 GOOGLE_GENAI_API_KEY=xxx
-```
 
 Run:
 
-```bash
+bash
 npm run dev
-```
 
 Opens at `localhost:9002`
 
@@ -54,14 +50,12 @@ Go to `/admin` — manage users, materials, and view analytics. Password protect
 
 ## Structure
 
-```
 src/
-  app/        → pages
-  components/ → UI
-  ai/         → AI logic
-  lib/        → utilities
-  context/    → state
-```
+app/ → pages
+components/ → UI
+ai/ → AI logic
+lib/ → utilities
+context/ → state
 
 ## License
 
