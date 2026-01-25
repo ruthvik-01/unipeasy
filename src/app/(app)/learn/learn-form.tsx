@@ -19,7 +19,6 @@ import { generateEvenSimplerExplanation } from "@/ai/flows/generate-even-simpler
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { useMemoryPalace } from "@/context/memory-palace-context";
 import { useToast } from "@/hooks/use-toast";
-import { MaterialRecommendations } from "@/components/materials/material-recommendations";
 import { useAuth } from "@/context/auth-context";
 import { trackTopicLearned } from "@/lib/analytics";
 import { Badge } from "@/components/ui/badge";
@@ -343,11 +342,6 @@ export function LearnForm() {
       )}
 
       {error && <p className="text-destructive text-center py-4">{error}</p>}
-
-      {/* Material Recommendations - shown after search */}
-      {(result || loading) && form.getValues('topic') && (
-        <MaterialRecommendations topic={form.getValues('topic')} />
-      )}
 
       {result && (
         <div className="space-y-6">
