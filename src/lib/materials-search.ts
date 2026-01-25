@@ -29,17 +29,17 @@ export async function searchMaterials(searchQuery: string): Promise<MaterialReco
       let relevanceScore = 0;
       const matchedUnits: Subject["units"] = [];
 
-      // Check subject title match
-      const titleLower = subject.title.toLowerCase();
+      // Check subject title match (handle undefined)
+      const titleLower = (subject.title || '').toLowerCase();
       for (const term of searchTerms) {
         if (titleLower.includes(term)) {
           relevanceScore += 10;
         }
       }
 
-      // Check unit titles match
-      for (const unit of subject.units) {
-        const unitTitleLower = unit.unit_title.toLowerCase();
+      // Check unit titles match (handle undefined units array)
+      for (const unit of (subject.units || [])) {
+        const unitTitleLower = (unit.unit_title || '').toLowerCase();
         let unitMatches = false;
         
         for (const term of searchTerms) {
@@ -58,7 +58,7 @@ export async function searchMaterials(searchQuery: string): Promise<MaterialReco
       if (relevanceScore > 0) {
         recommendations.push({
           subject,
-          matchedUnits: matchedUnits.length > 0 ? matchedUnits : subject.units.slice(0, 2),
+          matchedUnits: matchedUnits.length > 0 ? matchedUnits : (subject.units || []).slice(0, 2),
           relevanceScore,
         });
       }
@@ -85,12 +85,12 @@ export async function getMaterialsByKeywords(keywords: string[]): Promise<Subjec
 
     querySnapshot.forEach((doc) => {
       const subject = { id: doc.id, ...doc.data() } as Subject;
-      const titleLower = subject.title.toLowerCase();
+      const titleLower = (subject.title || '').toLowerCase();
       
       // Check if any keyword matches
       const matches = keywordsLower.some(keyword => 
         titleLower.includes(keyword) ||
-        subject.units.some(u => u.unit_title.toLowerCase().includes(keyword))
+        (subject.units || []).some(u => (u.unit_title || '').toLowerCase().includes(keyword))
       );
       
       if (matches) {

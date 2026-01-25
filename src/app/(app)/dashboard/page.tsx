@@ -16,6 +16,7 @@ import {
   Trophy,
   Rocket,
   FileText,
+  BookOpen,
 } from "lucide-react";
 import {
   Card,
@@ -44,6 +45,12 @@ const quickAccessItems = [
     href: "/strategist",
     icon: Target,
     description: "Plan your success",
+  },
+  {
+    title: "Study Materials",
+    href: "/materials",
+    icon: BookOpen,
+    description: "JNTUK notes & resources",
   },
   {
     title: "My Documents",

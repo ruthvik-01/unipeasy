@@ -342,12 +342,28 @@ export default function MyDocumentsPage() {
     });
   };
 
+  const handleDownload = (doc: DocumentFile) => {
+    // Handle data URLs (base64) by triggering download
+    if (doc.fileUrl.startsWith('data:')) {
+      const link = document.createElement('a');
+      link.href = doc.fileUrl;
+      link.download = doc.name;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      // Regular URL - open in new tab
+      window.open(doc.fileUrl, "_blank");
+    }
+  };
+
   const handlePreview = (doc: DocumentFile) => {
     if (doc.fileType.includes("pdf") || doc.fileType.includes("image")) {
       setPreviewDoc(doc);
       setPreviewOpen(true);
     } else {
-      window.open(doc.fileUrl, "_blank");
+      // For non-previewable files, trigger download instead
+      handleDownload(doc);
     }
   };
 
@@ -758,7 +774,7 @@ export default function MyDocumentsPage() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => window.open(doc.fileUrl, "_blank")}
+                        onClick={() => handleDownload(doc)}
                         title="Download"
                       >
                         <Download className="h-4 w-4" />

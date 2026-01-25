@@ -13,11 +13,11 @@ export function PageHeader({
 }: PageHeaderProps) {
   return (
     <div className={cn("space-y-1", className)}>
-      <h1 className="text-2xl font-semibold tracking-tight">
+      <h1 className="text-xl sm:text-2xl font-semibold tracking-tight break-words">
         {title}
       </h1>
       {description && (
-        <p className="text-muted-foreground">{description}</p>
+        <p className="text-sm sm:text-base text-muted-foreground">{description}</p>
       )}
     </div>
   );

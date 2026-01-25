@@ -62,7 +62,7 @@ export default function SkillsPage() {
 
   return (
     <div className={cn(
-      "space-y-8 transition-all duration-500",
+      "space-y-4 sm:space-y-6 md:space-y-8 transition-all duration-500",
       mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
     )}>
       <PageHeader
@@ -71,16 +71,16 @@ export default function SkillsPage() {
       />
       
       {/* Branch Filter */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Filter className="h-4 w-4" />
+      <div className="space-y-3 sm:space-y-4">
+        <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
+          <Filter className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
           <span>Filter by Branch</span>
         </div>
         <Tabs value={selectedBranch} onValueChange={(v) => setSelectedBranch(v as Branch | 'All')}>
-          <TabsList className="flex flex-wrap h-auto gap-2 bg-transparent p-0">
+          <TabsList className="flex flex-wrap h-auto gap-1.5 sm:gap-2 bg-transparent p-0">
             <TabsTrigger 
               value="All" 
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-full px-4"
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-full px-2.5 sm:px-4 text-xs sm:text-sm h-7 sm:h-9"
             >
               All ({branchCounts['All']})
             </TabsTrigger>
@@ -88,7 +88,7 @@ export default function SkillsPage() {
               <TabsTrigger 
                 key={branch.id} 
                 value={branch.id}
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-full px-4"
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-full px-2.5 sm:px-4 text-xs sm:text-sm h-7 sm:h-9"
               >
                 {branch.name} ({branchCounts[branch.id]})
               </TabsTrigger>
@@ -99,63 +99,63 @@ export default function SkillsPage() {
 
       {/* Stats Banner */}
       {user && Object.keys(skillsProgress).length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
           <Card className="bg-gradient-to-br from-blue-500/10 to-blue-600/5 border-blue-500/20">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-blue-500/20">
-                <BookOpen className="h-5 w-5 text-blue-500" />
+            <CardContent className="p-2.5 sm:p-4 flex items-center gap-2 sm:gap-3">
+              <div className="p-1.5 sm:p-2 rounded-lg bg-blue-500/20">
+                <BookOpen className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{Object.keys(skillsProgress).length}</p>
-                <p className="text-xs text-muted-foreground">Skills Started</p>
+                <p className="text-lg sm:text-2xl font-bold">{Object.keys(skillsProgress).length}</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">Skills Started</p>
               </div>
             </CardContent>
           </Card>
           <Card className="bg-gradient-to-br from-green-500/10 to-green-600/5 border-green-500/20">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-green-500/20">
-                <Trophy className="h-5 w-5 text-green-500" />
+            <CardContent className="p-2.5 sm:p-4 flex items-center gap-2 sm:gap-3">
+              <div className="p-1.5 sm:p-2 rounded-lg bg-green-500/20">
+                <Trophy className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" />
               </div>
               <div>
-                <p className="text-2xl font-bold">
+                <p className="text-lg sm:text-2xl font-bold">
                   {Object.values(skillsProgress).reduce((acc, p) => acc + p.completedLevels.length, 0)}
                 </p>
-                <p className="text-xs text-muted-foreground">Levels Completed</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">Levels Done</p>
               </div>
             </CardContent>
           </Card>
           <Card className="bg-gradient-to-br from-purple-500/10 to-purple-600/5 border-purple-500/20">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-purple-500/20">
-                <Sparkles className="h-5 w-5 text-purple-500" />
+            <CardContent className="p-2.5 sm:p-4 flex items-center gap-2 sm:gap-3">
+              <div className="p-1.5 sm:p-2 rounded-lg bg-purple-500/20">
+                <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-purple-500" />
               </div>
               <div>
-                <p className="text-2xl font-bold">
+                <p className="text-lg sm:text-2xl font-bold">
                   {Object.values(skillsProgress).filter(p => p.completedLevels.length === p.totalLevels).length}
                 </p>
-                <p className="text-xs text-muted-foreground">Skills Mastered</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">Mastered</p>
               </div>
             </CardContent>
           </Card>
           <Card className="bg-gradient-to-br from-orange-500/10 to-orange-600/5 border-orange-500/20">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-orange-500/20">
-                <ArrowRight className="h-5 w-5 text-orange-500" />
+            <CardContent className="p-2.5 sm:p-4 flex items-center gap-2 sm:gap-3">
+              <div className="p-1.5 sm:p-2 rounded-lg bg-orange-500/20">
+                <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 text-orange-500" />
               </div>
               <div>
-                <p className="text-2xl font-bold">
+                <p className="text-lg sm:text-2xl font-bold">
                   {Object.values(skillsProgress).length > 0 
                     ? Math.max(...Object.values(skillsProgress).map(p => p.lastLevelCompleted))
                     : 0}
                 </p>
-                <p className="text-xs text-muted-foreground">Highest Level</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">Top Level</p>
               </div>
             </CardContent>
           </Card>
         </div>
       )}
       
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-3 sm:gap-4 md:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {filteredTracks.map((track: Omit<SkillTrack, 'journey'>, index: number) => {
           const progress = getProgressPercentage(track.slug);
           const isStarted = skillsProgress[track.slug] !== undefined;
@@ -169,15 +169,15 @@ export default function SkillsPage() {
               )}
               style={{ animationDelay: `${index * 50}ms` }}
             >
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between gap-2 mb-2">
-                  <div className="flex gap-2">
-                    <Badge variant="secondary">
+              <CardHeader className="p-3 sm:p-4 md:p-6 pb-2 sm:pb-3">
+                <div className="flex items-center justify-between gap-2 mb-1.5 sm:mb-2">
+                  <div className="flex gap-1.5 sm:gap-2 flex-wrap">
+                    <Badge variant="secondary" className="text-[10px] sm:text-xs">
                       {track.category}
                     </Badge>
                     <Badge 
                       className={cn(
-                        "border-0",
+                        "border-0 text-[10px] sm:text-xs",
                         track.branch === 'CSE' && "bg-blue-500/80 text-white",
                         track.branch === 'CSM' && "bg-purple-500/80 text-white",
                         track.branch === 'CSD' && "bg-green-500/80 text-white",
@@ -190,33 +190,33 @@ export default function SkillsPage() {
                     </Badge>
                   </div>
                   {progress === 100 && (
-                    <Trophy className="h-5 w-5 text-yellow-500" />
+                    <Trophy className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-500 shrink-0" />
                   )}
                 </div>
-                <CardTitle className="text-lg">
+                <CardTitle className="text-sm sm:text-base md:text-lg">
                   {track.title}
                 </CardTitle>
-                <CardDescription className="text-sm">{track.description}</CardDescription>
+                <CardDescription className="text-xs sm:text-sm line-clamp-2">{track.description}</CardDescription>
               </CardHeader>
               
-              <CardContent className="pt-0 flex-grow">
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="text-xs">
+              <CardContent className="p-3 sm:p-4 md:p-6 pt-0 flex-grow">
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <Badge variant="outline" className="text-[10px] sm:text-xs">
                     {track.level}
                   </Badge>
                   {isStarted && (
-                    <Badge variant="secondary" className="text-xs bg-green-500/10 text-green-600">
+                    <Badge variant="secondary" className="text-[10px] sm:text-xs bg-green-500/10 text-green-600">
                       In Progress
                     </Badge>
                   )}
                 </div>
                 {isStarted && (
-                  <div className="mt-3">
-                    <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
+                  <div className="mt-2 sm:mt-3">
+                    <div className="flex items-center justify-between text-[10px] sm:text-xs text-muted-foreground mb-1">
                       <span>Progress</span>
                       <span className="font-medium">{progress}%</span>
                     </div>
-                    <div className="h-2 bg-muted rounded-full overflow-hidden">
+                    <div className="h-1.5 sm:h-2 bg-muted rounded-full overflow-hidden">
                       <div 
                         className="h-full bg-primary rounded-full transition-all duration-500"
                         style={{ width: `${progress}%` }}
@@ -226,11 +226,11 @@ export default function SkillsPage() {
                 )}
               </CardContent>
               
-              <CardFooter className="pt-0">
-                <Button asChild variant={isStarted ? "default" : "outline"} className="w-full">
+              <CardFooter className="p-3 sm:p-4 md:p-6 pt-0">
+                <Button asChild variant={isStarted ? "default" : "outline"} className="w-full h-8 sm:h-9 text-xs sm:text-sm">
                   <Link href={`/skills/${track.slug}`}>
-                    {isStarted ? "Continue Training" : "Start Training"}
-                    <ArrowRight className="ml-2 w-4 h-4" />
+                    {isStarted ? "Continue" : "Start Training"}
+                    <ArrowRight className="ml-1.5 sm:ml-2 w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </Link>
                 </Button>
               </CardFooter>

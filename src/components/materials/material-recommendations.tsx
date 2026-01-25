@@ -75,24 +75,35 @@ export function MaterialRecommendations({ topic }: MaterialRecommendationsProps)
             <div className="flex items-start justify-between gap-2 mb-2">
               <div className="flex items-center gap-2">
                 <BookOpen className="h-4 w-4 text-primary" />
-                <span className="font-medium text-sm">{rec.subject.title}</span>
+                <span className="font-medium text-sm">{rec.subject.title || 'Untitled'}</span>
               </div>
               <Badge variant="secondary" className="text-xs">
-                {rec.subject.units.length} Units
+                {(rec.subject.units || []).length} Units
               </Badge>
             </div>
             <div className="space-y-1.5">
-              {rec.matchedUnits.slice(0, 2).map((unit) => (
+              {(rec.matchedUnits || []).slice(0, 2).map((unit) => (
                 <Button
                   key={unit.unit_number}
                   variant="ghost"
                   size="sm"
                   className="w-full justify-start h-auto py-2 px-2 text-left"
-                  onClick={() => window.open(unit.drive_link, "_blank")}
+                  onClick={() => {
+                    if ((unit.drive_link || '').startsWith('data:')) {
+                      const link = document.createElement('a');
+                      link.href = unit.drive_link;
+                      link.download = `${unit.unit_title || `Unit_${unit.unit_number}`}.pdf`;
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                    } else if (unit.drive_link) {
+                      window.open(unit.drive_link, "_blank");
+                    }
+                  }}
                 >
                   <FileText className="h-3.5 w-3.5 mr-2 text-muted-foreground flex-shrink-0" />
                   <span className="text-xs text-muted-foreground mr-1">Unit {unit.unit_number}:</span>
-                  <span className="text-xs truncate flex-1">{unit.unit_title}</span>
+                  <span className="text-xs truncate flex-1">{unit.unit_title || 'Untitled'}</span>
                   <ExternalLink className="h-3 w-3 ml-2 text-muted-foreground flex-shrink-0" />
                 </Button>
               ))}

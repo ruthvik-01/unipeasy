@@ -30,7 +30,17 @@ export function UnitCard({ unit, subjectId, subjectTitle, branch, year }: UnitCa
       });
     }
     
-    window.open(unit.drive_link, "_blank");
+    // Handle data URLs by triggering download instead of navigation
+    if (unit.drive_link.startsWith('data:')) {
+      const link = document.createElement('a');
+      link.href = unit.drive_link;
+      link.download = `${unit.unit_title || `Unit_${unit.unit_number}`}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      window.open(unit.drive_link, "_blank");
+    }
   };
 
   return (
