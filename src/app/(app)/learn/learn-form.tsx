@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Loader2, BookText, Compass, Waypoints, HelpCircle, Save, Search, History, X } from "lucide-react";
+import { Loader2, BookText, Compass, Waypoints, HelpCircle, Save, Search, History, X, Sparkles, Play, Settings2 } from "lucide-react";
 import { Quiz } from "./quiz";
 import { generateEvenSimplerExplanation } from "@/ai/flows/generate-even-simpler-explanation";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
@@ -23,6 +23,10 @@ import { MaterialRecommendations } from "@/components/materials/material-recomme
 import { useAuth } from "@/context/auth-context";
 import { trackTopicLearned } from "@/lib/analytics";
 import { Badge } from "@/components/ui/badge";
+import { TextToSpeechButton } from "@/components/text-to-speech-button";
+import { UserInterestsDialog } from "@/components/user-interests-dialog";
+import { AnimatedStoryVideo } from "@/components/animated-story-video";
+import { useUserInterests } from "@/context/user-interests-context";
 
 
 const learnSchema = z.object({
@@ -47,10 +51,13 @@ export function LearnForm() {
   const [isGeneratingSimpler, setIsGeneratingSimpler] = useState(false);
   const [searchHistory, setSearchHistory] = useState<SearchHistoryItem[]>([]);
   const [showHistory, setShowHistory] = useState(false);
+  const [showInterestsDialog, setShowInterestsDialog] = useState(false);
+  const [showStoryVideo, setShowStoryVideo] = useState(false);
 
   const { addMemoryItem } = useMemoryPalace();
   const { toast } = useToast();
   const { user } = useAuth();
+  const { interests, hasSetPreferences } = useUserInterests();
 
   // Load search history from localStorage
   useEffect(() => {
@@ -107,10 +114,18 @@ export function LearnForm() {
     setError(null);
     setSimplerExplanation(null);
     setShowHistory(false);
+    setShowStoryVideo(false);
     try {
       const explanation = await generateSimpleExplanation({
         topic: values.topic,
-        preferredExplanationLength: "medium",
+        preferredExplanationLength: interests.preferredLength || "medium",
+        userInterests: hasSetPreferences ? {
+          learningStyle: interests.learningStyle,
+          explanationStyle: interests.explanationStyle,
+          difficultyLevel: interests.difficultyLevel,
+          interests: interests.interests,
+          fieldOfStudy: interests.fieldOfStudy,
+        } : undefined,
       });
       setResult(explanation);
       
@@ -164,6 +179,32 @@ export function LearnForm() {
 
   return (
     <div className="space-y-8">
+      {/* User Interests Dialog */}
+      <UserInterestsDialog open={showInterestsDialog} onOpenChange={setShowInterestsDialog} />
+
+      {/* Personalization Prompt */}
+      {!hasSetPreferences && (
+        <Card className="border-dashed border-2 border-primary/30 bg-primary/5">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              <div className="p-3 rounded-lg bg-primary/10">
+                <Sparkles className="h-6 w-6 text-primary" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold">Personalize Your Learning Experience</h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Tell us about your interests and learning style to get tailored explanations.
+                </p>
+              </div>
+              <Button onClick={() => setShowInterestsDialog(true)} className="shrink-0">
+                <Settings2 className="h-4 w-4 mr-2" />
+                Set Preferences
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Search Input */}
       <Card className="border shadow-sm">
         <CardContent className="p-6">
@@ -174,10 +215,24 @@ export function LearnForm() {
                 name="topic"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-base font-medium flex items-center gap-2">
-                      <Search className="h-4 w-4 text-muted-foreground" />
-                      What do you want to learn?
-                    </FormLabel>
+                    <div className="flex items-center justify-between">
+                      <FormLabel className="text-base font-medium flex items-center gap-2">
+                        <Search className="h-4 w-4 text-muted-foreground" />
+                        What do you want to learn?
+                      </FormLabel>
+                      {hasSetPreferences && (
+                        <Button 
+                          type="button" 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => setShowInterestsDialog(true)}
+                          className="text-xs"
+                        >
+                          <Settings2 className="h-3 w-3 mr-1" />
+                          Preferences
+                        </Button>
+                      )}
+                    </div>
                     <FormControl>
                       <div className="relative">
                         <Input
@@ -191,6 +246,7 @@ export function LearnForm() {
                               setResult(null);
                               setError(null);
                               setSimplerExplanation(null);
+                              setShowStoryVideo(false);
                             }
                           }}
                           onFocus={() => setShowHistory(true)}
@@ -295,16 +351,52 @@ export function LearnForm() {
 
       {result && (
         <div className="space-y-6">
+          {/* Animated Lesson Video Section */}
+          <Card className="border shadow-sm overflow-hidden bg-gradient-to-br from-purple-500/5 to-pink-500/5">
+            <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20">
+                  <Play className="w-5 h-5 text-purple-600" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg">Animated Lesson</CardTitle>
+                  <CardDescription>Watch an engaging animated summary with narration</CardDescription>
+                </div>
+              </div>
+              <Button
+                variant={showStoryVideo ? "secondary" : "default"}
+                size="sm"
+                onClick={() => setShowStoryVideo(!showStoryVideo)}
+                className="gap-2"
+              >
+                <Play className="w-4 h-4" />
+                {showStoryVideo ? "Hide" : "Watch Story"}
+              </Button>
+            </CardHeader>
+            {showStoryVideo && (
+              <CardContent className="pt-0">
+                <AnimatedStoryVideo 
+                  topic={form.getValues('topic')} 
+                  explanation={result.simpleExplanation}
+                  analogy={result.analogy}
+                />
+              </CardContent>
+            )}
+          </Card>
+
           {/* Explanation */}
           <Card className="border shadow-sm">
-            <CardHeader className="flex flex-row items-center gap-3 space-y-0">
-              <div className="p-2 rounded-lg bg-secondary">
-                <BookText className="w-5 h-5" />
+            <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-secondary">
+                  <BookText className="w-5 h-5" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg">Simple Explanation</CardTitle>
+                  <CardDescription>Broken down for easy understanding</CardDescription>
+                </div>
               </div>
-              <div>
-                <CardTitle className="text-lg">Simple Explanation</CardTitle>
-                <CardDescription>Broken down for easy understanding</CardDescription>
-              </div>
+              <TextToSpeechButton text={result.simpleExplanation} />
             </CardHeader>
             <CardContent>
               <div className="prose prose-neutral dark:prose-invert max-w-none prose-p:leading-relaxed">
@@ -321,14 +413,17 @@ export function LearnForm() {
 
           {/* Analogy */}
           <Card className="border shadow-sm">
-            <CardHeader className="flex flex-row items-center gap-3 space-y-0">
-              <div className="p-2 rounded-lg bg-secondary">
-                <Compass className="w-5 h-5" />
+            <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-secondary">
+                  <Compass className="w-5 h-5" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg">Real-life Analogy</CardTitle>
+                  <CardDescription>Connecting to familiar concepts</CardDescription>
+                </div>
               </div>
-              <div>
-                <CardTitle className="text-lg">Real-life Analogy</CardTitle>
-                <CardDescription>Connecting to familiar concepts</CardDescription>
-              </div>
+              <TextToSpeechButton text={result.analogy} />
             </CardHeader>
             <CardContent>
               <div className="prose prose-neutral dark:prose-invert max-w-none prose-p:leading-relaxed">

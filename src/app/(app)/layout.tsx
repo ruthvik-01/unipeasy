@@ -12,6 +12,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { MemoryPalaceProvider } from "@/context/memory-palace-context";
+import { UserInterestsProvider } from "@/context/user-interests-context";
 import { Loader2, Rocket } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { PageTransition } from "@/components/page-transition";
@@ -46,32 +47,34 @@ export default function AppLayout({
   }
 
   return (
-    <MemoryPalaceProvider>
-      <div className="min-h-screen w-full">
-        <Suspense fallback={null}>
-          <NavigationProgress />
-        </Suspense>
-        <SidebarProvider>
-          <Sidebar>
-            <Navigation />
-          </Sidebar>
-          <SidebarInset>
-            {/* Mobile Header */}
-            <header className="flex md:hidden items-center justify-between p-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-              <div className="flex items-center gap-3">
-                <SidebarTrigger />
-                <div className="flex items-center gap-2">
-                  <Rocket className="w-6 h-6 text-primary" />
-                  <span className="font-headline font-semibold">UniPeasy</span>
+    <UserInterestsProvider>
+      <MemoryPalaceProvider>
+        <div className="min-h-screen w-full">
+          <Suspense fallback={null}>
+            <NavigationProgress />
+          </Suspense>
+          <SidebarProvider>
+            <Sidebar>
+              <Navigation />
+            </Sidebar>
+            <SidebarInset>
+              {/* Mobile Header */}
+              <header className="flex md:hidden items-center justify-between p-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
+                <div className="flex items-center gap-3">
+                  <SidebarTrigger />
+                  <div className="flex items-center gap-2">
+                    <Rocket className="w-6 h-6 text-primary" />
+                    <span className="font-headline font-semibold">UniPeasy</span>
+                  </div>
                 </div>
-              </div>
-            </header>
-            <main className="p-4 sm:p-6 lg:p-8">
-              <PageTransition>{children}</PageTransition>
-            </main>
-          </SidebarInset>
-        </SidebarProvider>
-      </div>
-    </MemoryPalaceProvider>
+              </header>
+              <main className="p-4 sm:p-6 lg:p-8">
+                <PageTransition>{children}</PageTransition>
+              </main>
+            </SidebarInset>
+          </SidebarProvider>
+        </div>
+      </MemoryPalaceProvider>
+    </UserInterestsProvider>
   );
 }
