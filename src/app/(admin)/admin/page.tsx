@@ -73,8 +73,8 @@ export default function AdminDashboard() {
           ...doc.data(),
         } as Subject);
       });
-      // Sort by title
-      subjectsList.sort((a, b) => a.title.localeCompare(b.title));
+      // Sort by title (handle undefined titles)
+      subjectsList.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
       setSubjects(subjectsList);
     } catch (error) {
       console.error("Error fetching subjects:", error);
@@ -118,18 +118,18 @@ export default function AdminDashboard() {
 
   const filteredSubjects = subjects.filter(
     (subject) =>
-      subject.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      subject.branch.some((b) =>
+      (subject.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (subject.branch || []).some((b) =>
         b.toLowerCase().includes(searchQuery.toLowerCase())
       ) ||
-      subject.year.toLowerCase().includes(searchQuery.toLowerCase())
+      (subject.year || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const formatYear = (year: string) => {
     return year.replace("-", " ").replace(/\b\w/g, (c) => c.toUpperCase());
   };
 
-  const totalUnits = subjects.reduce((acc, s) => acc + s.units.length, 0);
+  const totalUnits = subjects.reduce((acc, s) => acc + (s.units?.length || 0), 0);
 
   return (
     <div className="space-y-6">
@@ -194,7 +194,7 @@ export default function AdminDashboard() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-foreground">
-                  {new Set(subjects.flatMap((s) => s.branch)).size}
+                  {new Set(subjects.flatMap((s) => s.branch || [])).size}
                 </p>
                 <p className="text-sm text-muted-foreground">Active Branches</p>
               </div>
@@ -270,15 +270,15 @@ export default function AdminDashboard() {
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-1 mb-2">
-                      {subject.branch.map((b) => (
+                      {(subject.branch || []).map((b) => (
                         <Badge key={b} variant="secondary" className="text-xs">
                           {b}
                         </Badge>
                       ))}
                     </div>
                     <div className="flex items-center justify-between text-sm text-muted-foreground">
-                      <span>{formatYear(subject.year)}</span>
-                      <Badge variant="outline">{subject.units.length} units</Badge>
+                      <span>{formatYear(subject.year || '')}</span>
+                      <Badge variant="outline">{(subject.units || []).length} units</Badge>
                     </div>
                   </div>
                 ))}
@@ -299,19 +299,19 @@ export default function AdminDashboard() {
                   <TableBody>
                     {filteredSubjects.map((subject) => (
                       <TableRow key={subject.id} className="hover:bg-muted/30">
-                        <TableCell className="font-medium">{subject.title}</TableCell>
+                        <TableCell className="font-medium">{subject.title || 'Untitled'}</TableCell>
                         <TableCell>
                           <div className="flex flex-wrap gap-1">
-                            {subject.branch.map((b) => (
+                            {(subject.branch || []).map((b) => (
                               <Badge key={b} variant="secondary" className="text-xs">
                                 {b}
                               </Badge>
                             ))}
                           </div>
                         </TableCell>
-                        <TableCell>{formatYear(subject.year)}</TableCell>
+                        <TableCell>{formatYear(subject.year || '')}</TableCell>
                         <TableCell className="text-center">
-                          <Badge variant="outline">{subject.units.length}</Badge>
+                          <Badge variant="outline">{(subject.units || []).length}</Badge>
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-2">
@@ -382,7 +382,7 @@ export default function AdminDashboard() {
             <DialogDescription>
               {statDialog.type === 'subjects' && `${subjects.length} subjects in the system`}
               {statDialog.type === 'units' && `${totalUnits} units across all subjects`}
-              {statDialog.type === 'branches' && `${new Set(subjects.flatMap((s) => s.branch)).size} branches with materials`}
+              {statDialog.type === 'branches' && `${new Set(subjects.flatMap((s) => s.branch || [])).size} branches with materials`}
             </DialogDescription>
           </DialogHeader>
           
@@ -396,14 +396,14 @@ export default function AdminDashboard() {
                   subjects.map((subject) => (
                     <div key={subject.id} className="flex items-center justify-between p-3 rounded-lg border bg-card">
                       <div>
-                        <p className="font-medium">{subject.title}</p>
+                        <p className="font-medium">{subject.title || 'Untitled'}</p>
                         <div className="flex items-center gap-2 mt-1">
-                          <Badge variant="outline" className="text-xs">{formatYear(subject.year)}</Badge>
-                          <span className="text-xs text-muted-foreground">{subject.units.length} units</span>
+                          <Badge variant="outline" className="text-xs">{formatYear(subject.year || '')}</Badge>
+                          <span className="text-xs text-muted-foreground">{(subject.units || []).length} units</span>
                         </div>
                       </div>
                       <div className="flex flex-wrap gap-1">
-                        {subject.branch.map((b) => (
+                        {(subject.branch || []).map((b) => (
                           <Badge key={b} variant="secondary" className="text-xs">{b}</Badge>
                         ))}
                       </div>
@@ -422,11 +422,11 @@ export default function AdminDashboard() {
                   subjects.map((subject) => (
                     <div key={subject.id} className="p-3 rounded-lg border bg-card">
                       <div className="flex items-center justify-between mb-2">
-                        <p className="font-medium">{subject.title}</p>
-                        <Badge variant="secondary">{subject.units.length} units</Badge>
+                        <p className="font-medium">{subject.title || 'Untitled'}</p>
+                        <Badge variant="secondary">{(subject.units || []).length} units</Badge>
                       </div>
                       <div className="space-y-1 ml-4">
-                        {subject.units.map((unit) => (
+                        {(subject.units || []).map((unit) => (
                           <div key={unit.unit_number} className="flex items-center justify-between text-sm p-2 rounded bg-muted/50">
                             <span>Unit {unit.unit_number}: {unit.unit_title}</span>
                             {unit.drive_link && (
@@ -447,7 +447,7 @@ export default function AdminDashboard() {
                 {(() => {
                   const branchData: Record<string, Subject[]> = {};
                   subjects.forEach(s => {
-                    s.branch.forEach(b => {
+                    (s.branch || []).forEach(b => {
                       if (!branchData[b]) branchData[b] = [];
                       branchData[b].push(s);
                     });
@@ -467,7 +467,7 @@ export default function AdminDashboard() {
                       <div className="flex flex-wrap gap-1">
                         {branchSubjects.map((s) => (
                           <Badge key={s.id} variant="outline" className="text-xs">
-                            {s.title}
+                            {s.title || 'Untitled'}
                           </Badge>
                         ))}
                       </div>
