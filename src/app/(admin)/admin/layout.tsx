@@ -16,7 +16,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
-const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "admin123";
+const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD ;
 const AUTH_KEY = "admin_authenticated";
 
 export default function AdminLayout({
