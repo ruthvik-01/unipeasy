@@ -134,14 +134,6 @@ src/
 └── context/      → Global state management
 ```
 
-## Checkout The Sample Website
-
-```
-unipeasy-five.vercel.app
-```
-
----
-
 ## License
 
 MIT — Feel free to use, modify, and share!
